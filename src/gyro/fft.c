@@ -9,8 +9,7 @@
 #include "arm_common_tables.h"
 
 #define FFT_DATA_SET_SIZE 96
-//#define BQQ 0.7071067811865475f //butterworth 1/sqrt(2)
-#define BQQ 1.0f //butterworth 1/sqrt(2)
+#define BQQ 0.707f //butterworth 1/sqrt(2)
 
 typedef enum fftUpdateState
 {
@@ -26,7 +25,6 @@ typedef struct fft_data {
     float max;
     float cen;
     float cutoffFreq;
-    float notchQ;
 } fft_data_t;
 
 volatile fftUpdateState_t fftUpdateState;
@@ -108,7 +106,7 @@ void update_fft(void)
             //run calculations, calculate filter, runs at 333 Hz using 1000 Hz samples
             calculate_fft(fftGyroDataX, rfftGyroDataX, FFT_DATA_SET_SIZE, &fftResultX, &centerFrqFiltX );
             //init new calculations
-            biquad_init(fftResultX.cutoffFreq, &axisX, REFRESH_RATE, FILTER_TYPE_NOTCH, fftResultX.notchQ);
+            biquad_init(fftResultX.cutoffFreq, &axisX, REFRESH_RATE, FILTER_TYPE_NOTCH, BQQ);
             //set new state
             fftUpdateState = FFT_STATE_CALCULATE_X_DONE;
             break;
@@ -119,7 +117,7 @@ void update_fft(void)
             //run calculations, calculate filter, runs at 333 Hz using 1000 Hz samples
             calculate_fft(fftGyroDataY, rfftGyroDataY, FFT_DATA_SET_SIZE, &fftResultY, &centerFrqFiltY );
             //init new calculations
-            biquad_init(fftResultY.cutoffFreq, &axisY, REFRESH_RATE, FILTER_TYPE_NOTCH, fftResultY.notchQ);
+            biquad_init(fftResultY.cutoffFreq, &axisY, REFRESH_RATE, FILTER_TYPE_NOTCH, BQQ);
             //set new state
             fftUpdateState = FFT_STATE_CALCULATE_Y_DONE;
             break;
@@ -130,7 +128,7 @@ void update_fft(void)
             //run calculations, calculate filter, runs at 333 Hz using 1000 Hz samples
             calculate_fft(fftGyroDataZ, rfftGyroDataZ, FFT_DATA_SET_SIZE, &fftResultZ, &centerFrqFiltZ );
             //init new calculations
-            biquad_init(fftResultZ.cutoffFreq, &axisZ, REFRESH_RATE, FILTER_TYPE_NOTCH, fftResultX.notchQ);
+            biquad_init(fftResultZ.cutoffFreq, &axisZ, REFRESH_RATE, FILTER_TYPE_NOTCH, BQQ);
             //set new state
             fftUpdateState = FFT_STATE_CALCULATE_Z_DONE;
             break;
@@ -213,9 +211,10 @@ static void calculate_fft(float *fftData, float *rfftData, uint16_t fftLen, fft_
 
     //division by zero check
     if (fftSum)
+    {
         fftResult->cen = CONSTRAIN( biquad_update( (fftWeightedSum / fftSum) - 1 , centerFrqFilt), NOTCH_MIN + 11, FFT_MAX_HZ);
+    }
 
     fftResult->cutoffFreq = CONSTRAIN(fftResult->cen - NOTCH_WIDTH, NOTCH_MIN, NOTCH_MAX);
-    fftResult->notchQ = NOTCH_APROX(fftResult->cen, fftResult->cutoffFreq) * filterConfig.dyn_gain;
     
 }

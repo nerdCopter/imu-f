@@ -4,39 +4,32 @@
 
 void biquad_init(float filterCutFreq, biquad_axis_state_t *state, float refreshRateSeconds, uint32_t filterType, float bandwidth)
 {
-
-	float samplingRate;
-    float bigA, omega, sn, cs, alpha, beta;
     float a0, a1, a2, b0, b1, b2;
 
-    float dbGain = 4.0;
+    const float samplingRate = (1 / refreshRateSeconds);
 
-    samplingRate = (1 / refreshRateSeconds);
-
-	omega = 2 * (float)M_PI_FLOAT * (float) filterCutFreq / samplingRate;
-	sn    = (float)sinf((float)omega);
-	cs    = (float)cosf((float)omega);
-	alpha = sn * (float)sinf( (float)((float)M_LN2_FLOAT / 2 * (float)bandwidth * (omega / sn)) );
-
-	(void)(beta);
+    const float omega = 2 * (float)M_PI_FLOAT * (float) filterCutFreq / samplingRate;
+    const float sn    = (float)sinf((float)omega);
+    const float cs    = (float)cosf((float)omega);
+	const float alpha = sn * (float)sinf( (float)((float)M_LN2_FLOAT / 2 * (float)bandwidth * (omega / sn)) );
 
 	switch (filterType)
 	{
 		case FILTER_TYPE_LOWPASS:
-			b0 = (1 - cs) /2;
-			b1 = 1 - cs;
-			b2 = (1 - cs) /2;
-			a0 = 1 + alpha;
-			a1 = -2 * cs;
-			a2 = 1 - alpha;
+			b0 = (1.0f - cs) * 0.5f;
+			b1 = 1.0f - cs;
+			b2 = (1.0f - cs) * 0.5f;
+			a0 = 1.0f + alpha;
+			a1 = -2.0f * cs;
+			a2 = 1.0f - alpha;
 			break;
 		case FILTER_TYPE_NOTCH:
-			b0 = 1;
-			b1 = -2 * cs;
-			b2 = 1;
-			a0 = 1 + alpha;
-			a1 = -2 * cs;
-			a2 = 1 - alpha;
+			b0 = 1.0f;
+			b1 = -2.0f * cs;
+			b2 = 1.0f;
+			a0 = 1.0f + alpha;
+			a1 = -2.0f * cs;
+			a2 = 1.0f - alpha;
 			break;
 	}
 	//don't let these states be used until they're updated
