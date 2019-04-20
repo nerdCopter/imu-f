@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include "includes.h"
 #include "gyro.h"
 #include "biquad.h"
@@ -8,8 +9,16 @@
 #include "arm_math.h"
 #include "arm_common_tables.h"
 
-#define FFT_DATA_SET_SIZE 96
-#define BQQ 0.707f //butterworth 1/sqrt(2)
+#define FFT_DATA_SET_SIZE 64	// fft size will be 32 - always power a of 2
+
+#define BQQ 0.707f //butterworth response 1/sqrt(2)
+
+// used for downsampling from 32 khz to 1 khz
+// thus we feed 1 khz data into the fft
+int sampleCount = 0;
+float sampleGyroDataX = 0.0f;
+float sampleGyroDataY = 0.0f;
+float sampleGyroDataZ = 0.0f;
 
 typedef enum fftUpdateState
 {
@@ -40,9 +49,11 @@ unsigned int fftGyroDataPtr;
 float fftGyroDataX[FFT_DATA_SET_SIZE];
 float fftGyroDataY[FFT_DATA_SET_SIZE];
 float fftGyroDataZ[FFT_DATA_SET_SIZE];
-float rfftGyroDataX[FFT_DATA_SET_SIZE];
-float rfftGyroDataY[FFT_DATA_SET_SIZE];
-float rfftGyroDataZ[FFT_DATA_SET_SIZE];
+
+// the output bin's - it's half the size
+float rfftGyroDataX[FFT_DATA_SET_SIZE>>1];
+float rfftGyroDataY[FFT_DATA_SET_SIZE>>1];
+float rfftGyroDataZ[FFT_DATA_SET_SIZE>>1];
 
 //fft results stored here
 static fft_data_t fftResultX;
@@ -103,7 +114,7 @@ void update_fft(void)
     switch(fftUpdateState)
     {
         case FFT_STATE_CALCULATE_X:
-            //run calculations, calculate filter, runs at 333 Hz using 1000 Hz samples
+            //run calculations, bla bla ...
             calculate_fft(fftGyroDataX, rfftGyroDataX, FFT_DATA_SET_SIZE, &fftResultX, &centerFrqFiltX );
             //init new calculations
             biquad_init(fftResultX.cutoffFreq, &axisX, REFRESH_RATE, FILTER_TYPE_NOTCH, BQQ);
@@ -141,17 +152,38 @@ void update_fft(void)
 
 void insert_gyro_data_for_fft(filteredData_t* filteredData)
 {
-    //holds FFT_DATA_SET_SIZE values
-    fftGyroDataX[fftGyroDataPtr]   = filteredData->rateData.x;
-    fftGyroDataY[fftGyroDataPtr]   = filteredData->rateData.y;
-    fftGyroDataZ[fftGyroDataPtr++] = filteredData->rateData.z;
+#define MULTIPLIER (1.0f / 32.0f)
+	// accumulate
+	sampleGyroDataX += filteredData->rateData.x;
+	sampleGyroDataY += filteredData->rateData.y;
+	sampleGyroDataZ += filteredData->rateData.z;
+	sampleCount++;
+	if (32 == sampleCount)
+	{
+		// feed a new fft sample
+		fftGyroDataX[fftGyroDataPtr]   = sampleGyroDataX * MULTIPLIER;
+		fftGyroDataY[fftGyroDataPtr]   = sampleGyroDataY * MULTIPLIER;
+		fftGyroDataZ[fftGyroDataPtr++] = sampleGyroDataZ * MULTIPLIER;
 
-    //prevent overflow and circularize the buffer
-	if(fftGyroDataPtr==FFT_DATA_SET_SIZE)
-    {
-		fftGyroDataPtr = 0;
-    }
+		// the complex part of the fft data - is zero
+		fftGyroDataX[fftGyroDataPtr]   = 0.0f;
+		fftGyroDataY[fftGyroDataPtr]   = 0.0f;
+		fftGyroDataZ[fftGyroDataPtr++] = 0.0f;
 
+		// reset the accumulator
+		sampleGyroDataX = 0.0f;
+		sampleGyroDataY = 0.0f;
+		sampleGyroDataZ = 0.0f;
+		sampleCount = 0;
+
+		//prevent overflow and circularize the buffer
+		if(fftGyroDataPtr==FFT_DATA_SET_SIZE)
+		{
+			fftGyroDataPtr = 0;
+			// a new fft calculation run can be issued
+			increment_fft_state();
+		}
+	}
 }
 
 //init fft anytime the filters are init. this happens in filter.c
@@ -185,7 +217,7 @@ static void calculate_fft(float *fftData, float *rfftData, uint16_t fftLen, fft_
     arm_cfft_instance_f32 * Sint = &(fftInstance.Sint);
 
     //ginormous, expensive function, need to figure out how long it takes to run this monster
-    arm_radix8_butterfly_f32(fftData, fftLen >> 2, Sint->pTwiddle, 1);
+    arm_radix8_butterfly_f32(fftData, fftLen >> 1, Sint->pTwiddle, 1);
 
     //asm code
     arm_bitreversal_32((uint32_t*)fftData, Sint->bitRevLength, Sint->pBitRevTable);
