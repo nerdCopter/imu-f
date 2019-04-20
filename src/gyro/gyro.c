@@ -380,7 +380,7 @@ void increment_acc_tracker(void)
             quatBuffer = &quatBufferB;
             break;
         case 10:
-                increment_fft_state();
+                //increment_fft_state();
             break;
         case 33:
             //reset acc tracker
