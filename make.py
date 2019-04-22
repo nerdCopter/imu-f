@@ -221,6 +221,8 @@ def configure_target(TARGET):
         SOURCE_FILES.append(LIBRARY_PATH + "/CMSIS_std/DSP_Lib/Source/TransformFunctions/arm_rfft_fast_init_f32.c")
         SOURCE_FILES.append(LIBRARY_PATH + "/CMSIS_std/DSP_Lib/Source/TransformFunctions/arm_cfft_radix8_f32.c")
         SOURCE_FILES.append(LIBRARY_PATH + "/CMSIS_std/DSP_Lib/Source/ComplexMathFunctions/arm_cmplx_mag_f32.c")
+        SOURCE_FILES.append(LIBRARY_PATH + "/CMSIS_std/DSP_Lib/Source/StatisticsFunctions/arm_max_f32.c")
+
     else:
         print("ERROR - Unknown Project")
         exit(1)

@@ -9,7 +9,8 @@
 #include "arm_math.h"
 #include "arm_common_tables.h"
 
-#define FFT_DATA_SET_SIZE 64	// fft size will be 32 - always power a of 2
+#define FFT_DATA_SET_SIZE (64)	// fft size will be 32 - always power a of 2
+#define FFT_SIZE          (FFT_DATA_SET_SIZE >> 1)
 
 #define BQQ 0.707f //butterworth response 1/sqrt(2)
 
@@ -30,12 +31,6 @@ typedef enum fftUpdateState
     FFT_STATE_CALCULATE_Z_DONE = 5,
 } fftUpdateState_t;
 
-typedef struct fft_data {
-    float max;
-    float cen;
-    float cutoffFreq;
-} fft_data_t;
-
 volatile fftUpdateState_t fftUpdateState;
 
 static biquad_axis_state_t centerFrqFiltX;
@@ -51,14 +46,9 @@ float fftGyroDataY[FFT_DATA_SET_SIZE];
 float fftGyroDataZ[FFT_DATA_SET_SIZE];
 
 // the output bin's - it's half the size
-float rfftGyroDataX[FFT_DATA_SET_SIZE>>1];
-float rfftGyroDataY[FFT_DATA_SET_SIZE>>1];
-float rfftGyroDataZ[FFT_DATA_SET_SIZE>>1];
-
-//fft results stored here
-static fft_data_t fftResultX;
-static fft_data_t fftResultY;
-static fft_data_t fftResultZ;
+float rfftGyroDataX[FFT_SIZE];
+float rfftGyroDataY[FFT_SIZE];
+float rfftGyroDataZ[FFT_SIZE];
 
 //fft arm dsp instance
 static arm_rfft_fast_instance_f32 fftInstance;
@@ -67,7 +57,7 @@ static arm_rfft_fast_instance_f32 fftInstance;
 static const uint32_t fftBinCount = ((FFT_DATA_SET_SIZE / 2 - 1) * FFT_MAX_HZ) / (FFT_MAX_HZ) + 1;
 
 
-static void calculate_fft(float *fftData, float *rfftData, uint16_t fftLen, fft_data_t* fftResult, biquad_axis_state_t* centerFrqFilt );
+static void calculate_fft(float *fftData, float *rfftData, float* centerFrequency);
 
 
 
@@ -111,13 +101,14 @@ void increment_fft_state(void)
 //run by the main loop, check the state machine to  see when it's time to do it's job
 void update_fft(void)
 {
+	float centerFrequency;
     switch(fftUpdateState)
     {
         case FFT_STATE_CALCULATE_X:
             //run calculations, bla bla ...
-            calculate_fft(fftGyroDataX, rfftGyroDataX, FFT_DATA_SET_SIZE, &fftResultX, &centerFrqFiltX );
+            calculate_fft(fftGyroDataX, rfftGyroDataX, &centerFrequency );
             //init new calculations
-            biquad_init(fftResultX.cutoffFreq, &axisX, REFRESH_RATE, FILTER_TYPE_NOTCH, BQQ);
+            biquad_init(centerFrequency, &axisX, REFRESH_RATE, FILTER_TYPE_NOTCH, BQQ);
             //set new state
             fftUpdateState = FFT_STATE_CALCULATE_X_DONE;
             break;
@@ -126,9 +117,9 @@ void update_fft(void)
             break;
         case FFT_STATE_CALCULATE_Y:
             //run calculations, calculate filter, runs at 333 Hz using 1000 Hz samples
-            calculate_fft(fftGyroDataY, rfftGyroDataY, FFT_DATA_SET_SIZE, &fftResultY, &centerFrqFiltY );
+            calculate_fft(fftGyroDataY, rfftGyroDataY, &centerFrequency );
             //init new calculations
-            biquad_init(fftResultY.cutoffFreq, &axisY, REFRESH_RATE, FILTER_TYPE_NOTCH, BQQ);
+            biquad_init(centerFrequency, &axisY, REFRESH_RATE, FILTER_TYPE_NOTCH, BQQ);
             //set new state
             fftUpdateState = FFT_STATE_CALCULATE_Y_DONE;
             break;
@@ -137,9 +128,9 @@ void update_fft(void)
             break;
         case FFT_STATE_CALCULATE_Z:
             //run calculations, calculate filter, runs at 333 Hz using 1000 Hz samples
-            calculate_fft(fftGyroDataZ, rfftGyroDataZ, FFT_DATA_SET_SIZE, &fftResultZ, &centerFrqFiltZ );
+            calculate_fft(fftGyroDataZ, rfftGyroDataZ, &centerFrequency );
             //init new calculations
-            biquad_init(fftResultZ.cutoffFreq, &axisZ, REFRESH_RATE, FILTER_TYPE_NOTCH, BQQ);
+            biquad_init(centerFrequency, &axisZ, REFRESH_RATE, FILTER_TYPE_NOTCH, BQQ);
             //set new state
             fftUpdateState = FFT_STATE_CALCULATE_Z_DONE;
             break;
@@ -206,18 +197,16 @@ void init_fft(void)
     arm_rfft_fast_init_f32(&fftInstance, FFT_SIZE);
 }
 
-static void calculate_fft(float *fftData, float *rfftData, uint16_t fftLen, fft_data_t* fftResult, biquad_axis_state_t* centerFrqFilt )
+static void calculate_fft(float *fftData, float *rfftData, float* fftCenter )
 {
-    unsigned int x = 0;
-    float fftSum = 0.0f;
-    float fftWeightedSum = 0.0f;
-    float squaredData = 0.0f;
+    float    maxValue;             /* Max FFT value is stored here */
+    uint32_t maxIndex;             /* Index in Output array where max value is */
 
     //pointer to Sint for using in bitreversal
     arm_cfft_instance_f32 * Sint = &(fftInstance.Sint);
 
     //ginormous, expensive function, need to figure out how long it takes to run this monster
-    arm_radix8_butterfly_f32(fftData, fftLen >> 1, Sint->pTwiddle, 1);
+    arm_radix8_butterfly_f32(fftData, FFT_SIZE, Sint->pTwiddle, 1);
 
     //asm code
     arm_bitreversal_32((uint32_t*)fftData, Sint->bitRevLength, Sint->pBitRevTable);
@@ -228,25 +217,11 @@ static void calculate_fft(float *fftData, float *rfftData, uint16_t fftLen, fft_
     //lots of square roots
     arm_cmplx_mag_f32(rfftData, fftData, fftBinCount);
 
-    //set result to 0
-    fftResult->max = 0;
-    for (x = 0; x < fftBinCount; x++) {
-        //square once to conserve CPU at the cost of a tiny amount of RAM
-        squaredData = fftData[x] * fftData[x];
-        //go through and find the max FFT frequency
-        fftResult->max = MAX(fftResult->max, squaredData);
-        //fft sum of squared data
-        fftSum += squaredData;
-        //weight the sum
-        fftWeightedSum += squaredData * (x + 1);
-    }
+    /* Calculates maxValue and returns corresponding value */
+    arm_max_f32(rfftData, FFT_SIZE, &maxValue, &maxIndex);
 
-    //division by zero check
-    if (fftSum)
-    {
-        fftResult->cen = CONSTRAIN( biquad_update( (fftWeightedSum / fftSum) - 1 , centerFrqFilt), NOTCH_MIN + 11, FFT_MAX_HZ);
-    }
+    /* calculate fft frequency for the found bin */
+    const float centerFrequency = (float)FFT_MAX_HZ / (float)FFT_SIZE * (float)maxIndex;    //set result to 0
 
-    fftResult->cutoffFreq = CONSTRAIN(fftResult->cen - NOTCH_WIDTH, NOTCH_MIN, NOTCH_MAX);
-    
+    *fftCenter = CONSTRAIN( centerFrequency, NOTCH_MIN, NOTCH_MAX);
 }
