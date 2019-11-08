@@ -98,7 +98,7 @@ inline float kalman_process(kalman_t* kalmanState, volatile float input, volatil
         kalmanState->e = 1.0f;
     }*/
 
-    kalmanState->e = ABS(target - input) + ABS(input/5);
+    kalmanState->e = ABS((target - input) * 2) + ABS(input/5);
 
 
     //prediction update
