@@ -31,6 +31,9 @@ typedef struct variance
     float xWindow[MAX_WINDOW_SIZE];
     float yWindow[MAX_WINDOW_SIZE];
     float zWindow[MAX_WINDOW_SIZE];
+    float xvarianceWindow[MAX_WINDOW_SIZE];
+    float yvarianceWindow[MAX_WINDOW_SIZE];
+    float zvarianceWindow[MAX_WINDOW_SIZE];
 
     float xSumMean;
     float ySumMean;
