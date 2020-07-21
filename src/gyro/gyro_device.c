@@ -3,7 +3,7 @@
 #include "gyro_device.h"
 
 //multiple configs can go here, just need one right now
-const gyro_device_config_t gyroConfig = {1, 0, INVENS_CONST_GYRO_FCB_32_3600, 0, INVENS_CONST_ACC_FCB_ENABLE, 32};
+const gyro_device_config_t gyroConfig = {1, 0, INVENS_CONST_GYRO_FCB_32_8800, 0, INVENS_CONST_ACC_FCB_ENABLE, 8};
 
 gyroFrame_t gyroRxFrame;
 gyroFrame_t gyroTxFrame;
@@ -53,7 +53,7 @@ static void gyro_cleanup_spi(void)
 
     //disable DMAs
     DMA_Cmd(GYRO_TX_DMA,DISABLE);
-    DMA_Cmd(GYRO_RX_DMA,DISABLE);  
+    DMA_Cmd(GYRO_RX_DMA,DISABLE);
 
     //disable SPI DMA requests
     SPI_I2S_DMACmd(GYRO_SPI, SPI_I2S_DMAReq_Tx, DISABLE);
@@ -70,7 +70,7 @@ void GYRO_SPI_RX_DMA_HANDLER(void)
         gyro_cs_hi();
         gyro_cleanup_spi();
         gyro_read_done_callback(&gyroRxFrame);
-        DMA_ClearITPendingBit(GYRO_RX_DMA_FLAG_TC);         
+        DMA_ClearITPendingBit(GYRO_RX_DMA_FLAG_TC);
     }
 }
 
@@ -92,7 +92,7 @@ static void gyro_spi_init(void)
     //set default CS state (high)
     GPIO_SetBits(GYRO_CS_PORT, GYRO_CS_PIN);
 
-    gpioInitStruct.GPIO_Mode = GPIO_Mode_AF; 
+    gpioInitStruct.GPIO_Mode = GPIO_Mode_AF;
     gpioInitStruct.GPIO_Pin = GYRO_SCK_PIN;
     GPIO_Init(GYRO_SCK_PORT, &gpioInitStruct);
 
@@ -156,7 +156,7 @@ static void gyro_spi_init(void)
 }
 
 static void gyro_spi_transmit_receive(uint8_t* txBuffer, uint8_t* rxBuffer, uint32_t size)
-{     
+{
 
     //set buffer size
     DMA_SetCurrDataCounter(GYRO_TX_DMA, size);
@@ -324,7 +324,7 @@ static void gyro_setup_exti_fn(gyroFrame_t* gyroRxFrame)
     gyroSetupReadDone = 1; //used for blocking reads
 }
 
-void gyro_device_init(gyro_read_done_t readFn) 
+void gyro_device_init(gyro_read_done_t readFn)
 {
     //set uint8_t ptrs so we don't have to type cast
     gyroRxFramePtr = (uint8_t *)&gyroRxFrame;
@@ -332,7 +332,7 @@ void gyro_device_init(gyro_read_done_t readFn)
 
     //no callback for setup
     gyro_read_done_callback = gyro_setup_exti_fn;
-    //setup gyro 
+    //setup gyro
     gyro_spi_init();
     //reset and configure gyro
     gyro_configure();
@@ -343,5 +343,3 @@ void gyro_device_init(gyro_read_done_t readFn)
     //setup EXTI last
     gpio_exti_init(GYRO_EXTI_PORT, GYRO_EXTI_PORT_SRC, GYRO_EXTI_PIN, GYRO_EXTI_PIN_SRC, GYRO_EXTI_LINE, EXTI_Trigger_Rising, GYRO_EXTI_IRQn, GYRO_EXTI_ISR_PRE_PRI, GYRO_EXTI_ISR_SUB_PRI);
 }
-
-

@@ -103,7 +103,7 @@ static void init_orientation(void)
 
 void reset_calibration(void){
     gyroCalibrationCycles = 0;
-    calibratingGyro = 0;  
+    calibratingGyro = 0;
     gyroSum.x = 0.0f;
     gyroSum.y = 0.0f;
     gyroSum.z = 0.0f;
@@ -267,8 +267,8 @@ void gyro_int_to_float(gyroFrame_t* gyroRxFrame)
         //if accDenom is 8, then we should do a switch case for quatenrion math.
         gyroLoopCounter = gyroConfig.accDenom;
         rawAccData.x = ((int16_t)((gyroRxFrame->accelX_H << 8) | gyroRxFrame->accelX_L)) * gyroAccMultiplier;
-		rawAccData.y = ((int16_t)((gyroRxFrame->accelY_H << 8) | gyroRxFrame->accelY_L)) * gyroAccMultiplier;
-		rawAccData.z = ((int16_t)((gyroRxFrame->accelZ_H << 8) | gyroRxFrame->accelZ_L)) * gyroAccMultiplier;
+		    rawAccData.y = ((int16_t)((gyroRxFrame->accelY_H << 8) | gyroRxFrame->accelY_L)) * gyroAccMultiplier;
+		    rawAccData.z = ((int16_t)((gyroRxFrame->accelZ_H << 8) | gyroRxFrame->accelZ_L)) * gyroAccMultiplier;
         gyroTempData = ((int16_t)((gyroRxFrame->temp_H << 8)   | gyroRxFrame->temp_L))   * GYRO_TEMP_MULTIPLIER + 25;
         //= (TEMP_OUT[15:0]/Temp_Sensitivity) +
         //RoomTemp_Offset
@@ -281,9 +281,9 @@ void gyro_int_to_float(gyroFrame_t* gyroRxFrame)
 
     //f*f+f is one operation on FPU
     rawRateData.x = (float)((int16_t)((gyroRxFrame->gyroX_H << 8) | gyroRxFrame->gyroX_L)) * gyroRateMultiplier + gyroCalibrationTrim.x;
-	rawRateData.y = (float)((int16_t)((gyroRxFrame->gyroY_H << 8) | gyroRxFrame->gyroY_L)) * gyroRateMultiplier + gyroCalibrationTrim.y;
-	rawRateData.z = (float)((int16_t)((gyroRxFrame->gyroZ_H << 8) | gyroRxFrame->gyroZ_L)) * gyroRateMultiplier + gyroCalibrationTrim.z;
- 
+	  rawRateData.y = (float)((int16_t)((gyroRxFrame->gyroY_H << 8) | gyroRxFrame->gyroY_L)) * gyroRateMultiplier + gyroCalibrationTrim.y;
+	  rawRateData.z = (float)((int16_t)((gyroRxFrame->gyroZ_H << 8) | gyroRxFrame->gyroZ_L)) * gyroRateMultiplier + gyroCalibrationTrim.z;
+
     //doing in real time, might be better to move this to the main loop for processing, but we need to make sure it's done right
     if (calibratingGyro)
     {
@@ -424,7 +424,7 @@ void fire_spi_send_ready(void)
             if(!spiDoneFlag)
             {
                 if( oopsCounter++ < RESYNC_COUNTER )
-                {  
+                {
                     //give time for spi transfer to happen
                     return;
                 }
@@ -443,7 +443,7 @@ void fire_spi_send_ready(void)
             memcpy((uint8_t *)sendBuffer, (uint8_t *)memptr8, boardCommState.commMode);
             //calc crc for send buffer
             append_crc_to_data_v( (uint32_t *)sendBuffer, (boardCommState.commMode >> 2)-1);
-            spiDoneFlag = 0; //flag for use during runtime to limit ISR overhead, might be able to remove this completely 
+            spiDoneFlag = 0; //flag for use during runtime to limit ISR overhead, might be able to remove this completely
             spi_fire_dma(BOARD_COMM_SPI, BOARD_COMM_TX_DMA, BOARD_COMM_RX_DMA, &boardCommDmaInitStruct, (uint32_t *)&(boardCommState.bufferSize), sendBuffer, bcRxPtr);
             gpio_write_pin(BOARD_COMM_DATA_RDY_PORT, BOARD_COMM_DATA_RDY_PIN, 1); //a quick spike for EXTI
             gpio_write_pin(BOARD_COMM_DATA_RDY_PORT, BOARD_COMM_DATA_RDY_PIN, 0); //a quick spike for EXTI
@@ -456,10 +456,10 @@ void gyro_read_done(gyroFrame_t* gyroRxFrame)
     gyroDataReadDone = 1;
 }
 
-void gyro_init(void) 
+void gyro_init(void)
 {
     init_orientation();
-    reset_calibration(); 
+    reset_calibration();
     gyroTempData = 0;
     gyroDataReadDone = 0;
     gyroCalibrationTrim.x = 0.0f;
