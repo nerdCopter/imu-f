@@ -24,7 +24,8 @@ volatile filter_config_t filterConfig =
 	BASE_LPF_HZ,
 	BASE_LPF_HZ,
 	BASE_LPF_HZ,
-	100,
+	2500,
+	2,
 };
 
 // PT1 Low Pass filter
@@ -50,6 +51,7 @@ volatile axisData_t setPoint;
 volatile int allowFilterInit = 1;
 
 float sharpness;
+float ptnScale;
 
 void allow_filter_init(void)
 {
@@ -58,7 +60,7 @@ void allow_filter_init(void)
 
 void ptnFilter_init(float freq, ptnFilter_axis_t *filterState)
 {
-	ptnFilterInit(freq, filterState, 4);
+	ptnFilterInit(freq, filterState, filterConfig.ptX);
 }
 
 void filter_init(void)
@@ -81,6 +83,16 @@ void filter_init(void)
 	pt1FilterInit(&az_filter, k, 0.0f);
 
 	sharpness = (float)filterConfig.sharpness / 250.0f;
+	switch (filterConfig.ptX) {
+		case 1:
+			ptnScale = 1.0f;
+		case 2:
+			ptnScale = 1.553773974f;
+		case 3:
+			ptnScale = 1.961459177f;
+		case 4:
+			ptnScale = 2.298959223f;
+	}
 }
 
 void filter_data(volatile axisData_t *gyroRateData, volatile axisData_t *gyroAccData, float gyroTempData, filteredData_t *filteredData)
@@ -124,17 +136,17 @@ void filter_data(volatile axisData_t *gyroRateData, volatile axisData_t *gyroAcc
 		if (setPoint.x != 0.0f && oldSetPoint.x != setPoint.x)
 		{
 			filterConfig.roll_lpf_hz = CONSTRAIN((float)filterConfig.i_roll_lpf_hz * ABS(1.0f - ((setPoint.x * errorMultiplierX) / filteredData->rateData.x)), 10.0f, 500.0f);
-			ptnFilterUpdate(filterConfig.roll_lpf_hz, &(lpfFilterStateRate.x), 2.298959223f);
+			ptnFilterUpdate(filterConfig.roll_lpf_hz, &(lpfFilterStateRate.x), ptnScale);
 		}
 		if (setPoint.y != 0.0f && oldSetPoint.y != setPoint.y)
 		{
 			filterConfig.pitch_lpf_hz = CONSTRAIN((float)filterConfig.i_pitch_lpf_hz * ABS(1.0f - ((setPoint.y * errorMultiplierY) / filteredData->rateData.y)), 10.0f, 500.0f);
-			ptnFilterUpdate(filterConfig.pitch_lpf_hz, &(lpfFilterStateRate.y), 2.298959223f);
+			ptnFilterUpdate(filterConfig.pitch_lpf_hz, &(lpfFilterStateRate.y), ptnScale);
 		}
 		if (setPoint.z != 0.0f && oldSetPoint.z != setPoint.z)
 		{
 			filterConfig.yaw_lpf_hz = CONSTRAIN((float)filterConfig.i_yaw_lpf_hz * ABS(1.0f - ((setPoint.z * errorMultiplierZ) / filteredData->rateData.z)), 10.0f, 500.0f);
-			ptnFilterUpdate(filterConfig.yaw_lpf_hz, &(lpfFilterStateRate.z), 2.298959223f);
+			ptnFilterUpdate(filterConfig.yaw_lpf_hz, &(lpfFilterStateRate.z), ptnScale);
 		}
 		memcpy((uint32_t *)&oldSetPoint, (uint32_t *)&setPoint, sizeof(axisData_t));
 	}
