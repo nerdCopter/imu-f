@@ -2,7 +2,7 @@
 #include "gyro.h"
 #include "filter.h"
 #include "kalman.h"
-#include "biquad.h"
+#include "ptnFilter.h"
 
 volatile filter_config_t filterConfig =
 {
