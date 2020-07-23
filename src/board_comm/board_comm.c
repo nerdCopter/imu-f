@@ -151,39 +151,15 @@ static void run_command(volatile imufCommand_t* command, volatile imufCommand_t*
                 filterConfig.i_pitch_lpf_hz      = (int16_t)(command->param5 >> 16);
                 filterConfig.i_yaw_lpf_hz        = (int16_t)(command->param5 & 0xFFFF);
                 filterConfig.ptX                 = (int16_t)(command->param6 >> 16);
-                if (!filterConfig.ptX)
-                {
-                  filterConfig.ptX = 2; // type 2 is similar to biquad if they are running a emu version that doesn't support this.
-                }
                 filterConfig.dynamicType         = (int16_t)(command->param6 & 0xFFFF);
-                if (!filterConfig.dynamicType)
-                {
-                  filterConfig.dynamicType = 1; // type 0 is nondynamic so set it to type 1 if they are running a emu version that doesn't support this.
-                }
                 filterConfig.dynamicMin          = (int16_t)(command->param7 >> 16);
-                if (!filterConfig.dynamicMin)
-                {
-                  filterConfig.dynamicMin = 10; // 10 if they are running a emu version that doesn't support this.
-                }
                 filterConfig.dynamicMax          = (int16_t)(command->param7 & 0xFFFF);
-                if (!filterConfig.dynamicMax)
-                {
-                  filterConfig.dynamicMax = 500; // 500 if they are running a emu version that doesn't support this.
-                }
                 gyroSettingsConfig.orientation   = (uint32_t)((uint16_t)(command->param8 & 0xFFFF));
                 gyroSettingsConfig.smallX        = (int32_t) ((int16_t)(command->param8 >> 16));
                 gyroSettingsConfig.smallY        = (int32_t) ((int16_t)(command->param9 & 0xFFFF));
                 gyroSettingsConfig.smallZ        = (int32_t) ((int16_t)(command->param9 >> 16));
                 filterConfig.sharpness           = (int16_t) ((int16_t)(command->param10 >> 16));
-                if (!filterConfig.sharpness)
-                {
-                	filterConfig.sharpness = 35;
-                }
                 filterConfig.acc_lpf_hz          = (int16_t)(command->param10 & 0xFFFF);
-                if (!filterConfig.acc_lpf_hz)
-                {
-                	filterConfig.acc_lpf_hz = 256;
-                }
 
                 memset((uint8_t *)reply, 0, sizeof(imufCommand_t));
                 reply->command = BC_IMUF_SETUP;
