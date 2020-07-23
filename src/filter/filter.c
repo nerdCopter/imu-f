@@ -100,6 +100,7 @@ void filter_init(void)
 }
 
 float errorMultiplierX, errorMultiplierY, errorMultiplierZ;
+float errorX, errorY, errorZ;
 float setpointGyroRatioX, setpointGyroRatioY, setpointGyroRatioZ;
 
 void filter_data(volatile axisData_t *gyroRateData, volatile axisData_t *gyroAccData, float gyroTempData, filteredData_t *filteredData)
@@ -127,21 +128,24 @@ void filter_data(volatile axisData_t *gyroRateData, volatile axisData_t *gyroAcc
 	filteredData->rateData.y = ptnFilterApply(filteredData->rateData.y, &(lpfFilterStateRate.y));
 	filteredData->rateData.z = ptnFilterApply(filteredData->rateData.z, &(lpfFilterStateRate.z));
 
+	errorX = ABS(setPoint.x - filteredData->rateData.x) * sharpness;
+	errorY = ABS(setPoint.y - filteredData->rateData.y) * sharpness;
+	errorZ = ABS(setPoint.z - filteredData->rateData.z) * sharpness;
+
+	errorMultiplierX = CONSTRAIN(1 + ABS(setPoint.x - filteredData->rateData.x) * sharpness, 1.0f, 10.0f);
+	errorMultiplierY = CONSTRAIN(1 + ABS(setPoint.y - filteredData->rateData.y) * sharpness, 1.0f, 10.0f);
+	errorMultiplierZ = CONSTRAIN(1 + ABS(setPoint.z - filteredData->rateData.z) * sharpness, 1.0f, 10.0f);
+
 	switch (filterConfig.dynamicType) {
 		case 0:
 		break;
 		case 1:
 
-		// calculate the error
-			errorMultiplierX = ABS(setPoint.x - filteredData->rateData.x) * sharpness;
-			errorMultiplierY = ABS(setPoint.y - filteredData->rateData.y) * sharpness;
-			errorMultiplierZ = ABS(setPoint.z - filteredData->rateData.z) * sharpness;
-
 		// give a boost to the setpoint, used to caluclate the filter cutoff, based on the error and setpoint/gyrodata
 
-			errorMultiplierX = CONSTRAIN(errorMultiplierX * ABS(1.0f - (setPoint.x / filteredData->rateData.x)) + 1.0f, 1.0f, 10.0f);
-			errorMultiplierY = CONSTRAIN(errorMultiplierY * ABS(1.0f - (setPoint.y / filteredData->rateData.y)) + 1.0f, 1.0f, 10.0f);
-			errorMultiplierZ = CONSTRAIN(errorMultiplierZ * ABS(1.0f - (setPoint.z / filteredData->rateData.z)) + 1.0f, 1.0f, 10.0f);
+			errorMultiplierX = CONSTRAIN(errorX * ABS(1.0f - (setPoint.x / filteredData->rateData.x)) + 1.0f, 1.0f, 10.0f);
+			errorMultiplierY = CONSTRAIN(errorY * ABS(1.0f - (setPoint.y / filteredData->rateData.y)) + 1.0f, 1.0f, 10.0f);
+			errorMultiplierZ = CONSTRAIN(errorZ * ABS(1.0f - (setPoint.z / filteredData->rateData.z)) + 1.0f, 1.0f, 10.0f);
 
 
 			if (setPointNew)
@@ -166,11 +170,6 @@ void filter_data(volatile axisData_t *gyroRateData, volatile axisData_t *gyroAcc
 			}
 		break;
 		case 2:
-
-		// calculate the error
-			errorMultiplierX = CONSTRAIN(1 + ABS(setPoint.x - filteredData->rateData.x) * sharpness, 1.0f, 10.0f);
-			errorMultiplierY = CONSTRAIN(1 + ABS(setPoint.y - filteredData->rateData.y) * sharpness, 1.0f, 10.0f);
-			errorMultiplierZ = CONSTRAIN(1 + ABS(setPoint.z - filteredData->rateData.z) * sharpness, 1.0f, 10.0f);
 
 			if (ABS(setPoint.x) > ABS(filteredData->rateData.x))
 			{
@@ -211,26 +210,18 @@ void filter_data(volatile axisData_t *gyroRateData, volatile axisData_t *gyroAcc
 		break;
 		case 3:
 
-		// calculate the error
-			errorMultiplierX = ABS(setPoint.x - filteredData->rateData.x) * sharpness;
-			errorMultiplierY = ABS(setPoint.y - filteredData->rateData.y) * sharpness;
-			errorMultiplierZ = ABS(setPoint.z - filteredData->rateData.z) * sharpness;
-
-			filterConfig.roll_lpf_hz = CONSTRAIN(errorMultiplierX + (float)filterConfig.i_roll_lpf_hz + ABS(filteredData->rateData.x / 5), filterConfig.dynamicMin, filterConfig.dynamicMax);
+			filterConfig.roll_lpf_hz = CONSTRAIN(errorX + (float)filterConfig.i_roll_lpf_hz + ABS(filteredData->rateData.x / 5), filterConfig.dynamicMin, filterConfig.dynamicMax);
 			ptnFilterUpdate(filterConfig.roll_lpf_hz, &(lpfFilterStateRate.x), ptnScale);
 
-			filterConfig.pitch_lpf_hz = CONSTRAIN(errorMultiplierX + (float)filterConfig.i_pitch_lpf_hz + ABS(filteredData->rateData.y / 5), filterConfig.dynamicMin, filterConfig.dynamicMax);
+			filterConfig.pitch_lpf_hz = CONSTRAIN(errorY + (float)filterConfig.i_pitch_lpf_hz + ABS(filteredData->rateData.y / 5), filterConfig.dynamicMin, filterConfig.dynamicMax);
 			ptnFilterUpdate(filterConfig.pitch_lpf_hz, &(lpfFilterStateRate.y), ptnScale);
 
-			filterConfig.yaw_lpf_hz = CONSTRAIN(errorMultiplierX + (float)filterConfig.i_yaw_lpf_hz + ABS(filteredData->rateData.z / 5), filterConfig.dynamicMin, filterConfig.dynamicMax);
+			filterConfig.yaw_lpf_hz = CONSTRAIN(errorZ + (float)filterConfig.i_yaw_lpf_hz + ABS(filteredData->rateData.z / 5), filterConfig.dynamicMin, filterConfig.dynamicMax);
 			ptnFilterUpdate(filterConfig.yaw_lpf_hz, &(lpfFilterStateRate.z), ptnScale);
 			break;
 
 		case 4:
-		// calculate the error
-			errorMultiplierX = CONSTRAIN(1 + ABS(setPoint.x - filteredData->rateData.x) * sharpness, 1.0f, 10.0f);
-			errorMultiplierY = CONSTRAIN(1 + ABS(setPoint.y - filteredData->rateData.y) * sharpness, 1.0f, 10.0f);
-			errorMultiplierZ = CONSTRAIN(1 + ABS(setPoint.z - filteredData->rateData.z) * sharpness, 1.0f, 10.0f);
+
 			// X AXIS
 			if (ABS(setPoint.x) > ABS(filteredData->rateData.x))
 			{
