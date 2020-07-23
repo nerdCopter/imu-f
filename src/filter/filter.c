@@ -223,6 +223,60 @@ void filter_data(volatile axisData_t *gyroRateData, volatile axisData_t *gyroAcc
 			filterConfig.yaw_lpf_hz = CONSTRAIN(errorMultiplierX + (float)filterConfig.i_yaw_lpf_hz + ABS(filteredData->rateData.z / 5), filterConfig.dynamicMin, filterConfig.dynamicMax);
 			ptnFilterUpdate(filterConfig.yaw_lpf_hz, &(lpfFilterStateRate.z), ptnScale);
 			break;
+
+		case 4:
+		// calculate the error
+			errorMultiplierX = CONSTRAIN(1 + ABS(setPoint.x - filteredData->rateData.x) * sharpness, 1.0f, 10.0f);
+			errorMultiplierY = CONSTRAIN(1 + ABS(setPoint.y - filteredData->rateData.y) * sharpness, 1.0f, 10.0f);
+			errorMultiplierZ = CONSTRAIN(1 + ABS(setPoint.z - filteredData->rateData.z) * sharpness, 1.0f, 10.0f);
+			// X AXIS
+			if (ABS(setPoint.x) > ABS(filteredData->rateData.x))
+			{
+				setpointGyroRatioX = (100.0f + ABS(setPoint.x)) / (100.0f + ABS(filteredData->rateData.x));
+			}
+			else
+			{
+				setpointGyroRatioX = (100.0f + ABS(filteredData->rateData.x)) / (100.0f + ABS(setPoint.x));
+			}
+
+			if (setPoint.x != 0.0f && oldSetPoint.x != setPoint.x)
+			{
+				filterConfig.roll_lpf_hz = CONSTRAIN((float)filterConfig.i_roll_lpf_hz * ABS((1.0f - setpointGyroRatioX) * errorMultiplierX), filterConfig.dynamicMin, filterConfig.dynamicMax);
+				ptnFilterUpdate(filterConfig.roll_lpf_hz, &(lpfFilterStateRate.x), ptnScale);
+			}
+
+			// Y AXIS
+			if (ABS(setPoint.y) > ABS(filteredData->rateData.y))
+			{
+				setpointGyroRatioY = (100.0f + ABS(setPoint.y)) / (100.0f + ABS(filteredData->rateData.y));
+			}
+			else
+			{
+				setpointGyroRatioY = (100.0f + ABS(filteredData->rateData.y)) / (100.0f + ABS(setPoint.y));
+			}
+
+			if (setPoint.y != 0.0f && oldSetPoint.y != setPoint.y)
+			{
+				filterConfig.pitch_lpf_hz = CONSTRAIN((float)filterConfig.i_pitch_lpf_hz * ABS((1.0f - setpointGyroRatioY) * errorMultiplierY), filterConfig.dynamicMin, filterConfig.dynamicMax);
+				ptnFilterUpdate(filterConfig.pitch_lpf_hz, &(lpfFilterStateRate.y), ptnScale);
+			}
+
+			// Z AXIS
+			if (ABS(setPoint.z) > ABS(filteredData->rateData.z))
+			{
+				setpointGyroRatioZ = (100.0f + ABS(setPoint.z)) / (100.0f + ABS(filteredData->rateData.z));
+			}
+			else
+			{
+				setpointGyroRatioZ = (100.0f + ABS(filteredData->rateData.z)) / (100.0f + ABS(setPoint.z));
+			}
+
+			if (setPoint.z != 0.0f && oldSetPoint.z != setPoint.z)
+			{
+			filterConfig.yaw_lpf_hz = CONSTRAIN((float)filterConfig.i_yaw_lpf_hz * ABS((1.0f - setpointGyroRatioY) * errorMultiplierY), filterConfig.dynamicMin, filterConfig.dynamicMax);
+			ptnFilterUpdate(filterConfig.yaw_lpf_hz, &(lpfFilterStateRate.y), ptnScale);
+			}
+		break;
 	}
 	//no need to filter ACC is used in quaternions
 	filteredData->accData.x = gyroAccData->x;
