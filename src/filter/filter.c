@@ -168,9 +168,9 @@ void filter_data(volatile axisData_t *gyroRateData, volatile axisData_t *gyroAcc
 		case 2:
 
 		// calculate the error
-			errorMultiplierX = CONSTRAIN(ABS(setPoint.x - filteredData->rateData.x) * sharpness, 1.0f, 10.0f);
-			errorMultiplierY = CONSTRAIN(ABS(setPoint.y - filteredData->rateData.y) * sharpness, 1.0f, 10.0f);
-			errorMultiplierZ = CONSTRAIN(ABS(setPoint.z - filteredData->rateData.z) * sharpness, 1.0f, 10.0f);
+			errorMultiplierX = CONSTRAIN(1 + ABS(setPoint.x - filteredData->rateData.x) * sharpness, 1.0f, 10.0f);
+			errorMultiplierY = CONSTRAIN(1 + ABS(setPoint.y - filteredData->rateData.y) * sharpness, 1.0f, 10.0f);
+			errorMultiplierZ = CONSTRAIN(1 + ABS(setPoint.z - filteredData->rateData.z) * sharpness, 1.0f, 10.0f);
 
 			if (ABS(setPoint.x) > ABS(filteredData->rateData.x))
 			{
