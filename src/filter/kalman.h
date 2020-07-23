@@ -5,7 +5,7 @@
 
 #define MAX_WINDOW_SIZE 512
 #define DEF_WINDOW_SIZE 32
-#define MIN_WINDOW_SIZE 3
+#define MIN_WINDOW_SIZE 6
 
 // #define VARIANCE_SCALE 0.001
 #define VARIANCE_SCALE 0.67f
@@ -19,17 +19,36 @@ typedef struct kalman
     float x;     //state
     float lastX; //previous state
     float e;
-    float s;
-    float axisVar;
-    uint16_t windex;
-    float axisWindow[MAX_WINDOW_SIZE];
-    float varianceWindow[MAX_WINDOW_SIZE];
-    float axisSumMean;
-    float axisMean;
-    float axisSumVar;
-    float inverseN;
-    uint16_t w;
 } kalman_t;
 
+typedef struct variance
+{
+    float xVar;
+    float yVar;
+    float zVar;
+
+    uint32_t windex;
+    float xWindow[MAX_WINDOW_SIZE];
+    float yWindow[MAX_WINDOW_SIZE];
+    float zWindow[MAX_WINDOW_SIZE];
+    float xvarianceWindow[MAX_WINDOW_SIZE];
+    float yvarianceWindow[MAX_WINDOW_SIZE];
+    float zvarianceWindow[MAX_WINDOW_SIZE];
+
+    float xSumMean;
+    float ySumMean;
+    float zSumMean;
+
+    float xMean;
+    float yMean;
+    float zMean;
+
+    float xSumVar;
+    float ySumVar;
+    float zSumVar;
+
+    float inverseN;
+} variance_t;
+
 extern void kalman_init(void);
-extern float kalman_update(float input, float setpoint, int axis);
+extern void kalman_update(volatile axisData_t *input, filteredData_t* output);
