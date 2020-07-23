@@ -172,11 +172,11 @@ void filter_data(volatile axisData_t *gyroRateData, volatile axisData_t *gyroAcc
 
 			if (ABS(setPoint.x) > ABS(filteredData->rateData.x))
 			{
-				setpointGyroRatioX = (100.0f + ABS(setPoint.x)) / (100.0f + ABS(filteredData->rateData.x));
+				setpointGyroRatioX = (25.0f + ABS(setPoint.x)) / (25.0f + ABS(filteredData->rateData.x));
 			}
 			else
 			{
-				setpointGyroRatioX = (100.0f + ABS(filteredData->rateData.x)) / (100.0f + ABS(setPoint.x));
+				setpointGyroRatioX = (25.0f + ABS(filteredData->rateData.x)) / (25.0f + ABS(setPoint.x));
 			}
 
 			filterConfig.roll_lpf_hz = CONSTRAIN((float)filterConfig.i_roll_lpf_hz * ABS((1.0f - setpointGyroRatioX) * errorMultiplierX), filterConfig.dynamicMin, filterConfig.dynamicMax);
