@@ -153,7 +153,22 @@ static void run_command(volatile imufCommand_t* command, volatile imufCommand_t*
                 filterConfig.ptX                 = (int16_t)(command->param6 >> 16);
                 if (!filterConfig.ptX)
                 {
-                  filterConfig.ptX = 2;
+                  filterConfig.ptX = 2; // type 2 is similar to biquad if they are running a emu version that doesn't support this.
+                }
+                filterConfig.dynamicType         = (int16_t)(command->param6 & 0xFFFF);
+                if (!filterConfig.dynamicType)
+                {
+                  filterConfig.dynamicType = 1; // type 0 is nondynamic so set it to type 1 if they are running a emu version that doesn't support this.
+                }
+                filterConfig.dynamicMin          = (int16_t)(command->param7 >> 16);
+                if (!filterConfig.dynamicMin)
+                {
+                  filterConfig.dynamicMin = 10; // 10 if they are running a emu version that doesn't support this.
+                }
+                filterConfig.dynamicMax          = (int16_t)(command->param7 & 0xFFFF);
+                if (!filterConfig.dynamicMax)
+                {
+                  filterConfig.dynamicMax = 500; // 500 if they are running a emu version that doesn't support this.
                 }
                 gyroSettingsConfig.orientation   = (uint32_t)((uint16_t)(command->param8 & 0xFFFF));
                 gyroSettingsConfig.smallX        = (int32_t) ((int16_t)(command->param8 >> 16));
