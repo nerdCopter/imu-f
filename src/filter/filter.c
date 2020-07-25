@@ -241,19 +241,19 @@ void filter_data(volatile axisData_t *gyroRateData, volatile axisData_t *gyroAcc
 		break;
 	}
 
-if (oldRollHz > (filterConfig.roll_lpf_hz + 5) || oldRollHz < (filterConfig.roll_lpf_hz - 5))
+if (oldRollHz > (filterConfig.roll_lpf_hz + 2.5f) || oldRollHz < (filterConfig.roll_lpf_hz - 2.5f))
 {
 	ptnFilterUpdate(filterConfig.roll_lpf_hz, &(lpfFilterStateRate.x), ptnScale);
 	oldRollHz = filterConfig.roll_lpf_hz;
 }
 
-if (oldPitchHz > (filterConfig.pitch_lpf_hz + 5) || oldPitchHz < (filterConfig.pitch_lpf_hz - 5))
+if (oldPitchHz > (filterConfig.pitch_lpf_hz + 2.5f) || oldPitchHz < (filterConfig.pitch_lpf_hz - 2.5f))
 {
 	ptnFilterUpdate(filterConfig.pitch_lpf_hz, &(lpfFilterStateRate.y), ptnScale);
 	oldPitchHz = filterConfig.pitch_lpf_hz;
 }
 
-if (oldYawHz > (filterConfig.yaw_lpf_hz + 5) || oldYawHz < (filterConfig.yaw_lpf_hz - 5))
+if (oldYawHz > (filterConfig.yaw_lpf_hz + 2.5f) || oldYawHz < (filterConfig.yaw_lpf_hz - 2.5f))
 {
 	ptnFilterUpdate(filterConfig.yaw_lpf_hz, &(lpfFilterStateRate.y), ptnScale);
 	oldYawHz = filterConfig.yaw_lpf_hz;
