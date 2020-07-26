@@ -90,9 +90,9 @@ void filter_init(void)
 	pt1FilterInit(&ay_filter, k, 0.0f);
 	pt1FilterInit(&az_filter, k, 0.0f);
 
-	pt1FilterInit(&frequencyChangeFilterX, pt1FilterGain(20, REFRESH_RATE), 0.0f);
-	pt1FilterInit(&frequencyChangeFilterY, pt1FilterGain(20, REFRESH_RATE), 0.0f);
-	pt1FilterInit(&frequencyChangeFilterZ, pt1FilterGain(20, REFRESH_RATE), 0.0f);
+	pt1FilterInit(&frequencyChangeFilterX, pt1FilterGain(5, REFRESH_RATE), 0.0f);
+	pt1FilterInit(&frequencyChangeFilterY, pt1FilterGain(5, REFRESH_RATE), 0.0f);
+	pt1FilterInit(&frequencyChangeFilterZ, pt1FilterGain(5, REFRESH_RATE), 0.0f);
 
 	sharpness = (float)filterConfig.sharpness / 15000.0f;
 	switch (filterConfig.ptX) {
@@ -110,6 +110,7 @@ void filter_init(void)
 float errorMultiplierX, errorMultiplierY, errorMultiplierZ;
 float errorX, errorY, errorZ;
 float setpointGyroRatioX, setpointGyroRatioY, setpointGyroRatioZ;
+float previousRateDataX, previousRateDataY, previousRateDataZ;
 uint16_t oldRollHz, oldPitchHz, oldYawHz;
 
 void filter_data(volatile axisData_t *gyroRateData, volatile axisData_t *gyroAccData, float gyroTempData, filteredData_t *filteredData)
@@ -135,14 +136,11 @@ void filter_data(volatile axisData_t *gyroRateData, volatile axisData_t *gyroAcc
 	filteredData->rateData.y = ptnFilterApply(filteredData->rateData.y, &(lpfFilterStateRate.y));
 	filteredData->rateData.z = ptnFilterApply(filteredData->rateData.z, &(lpfFilterStateRate.z));
 
-	if (filterConfig.dynamicType > 1) {
+	if (filterConfig.dynamicType > 0) {
 		errorX = fabsf(setPoint.x - filteredData->rateData.x) * sharpness;
 		errorY = fabsf(setPoint.y - filteredData->rateData.y) * sharpness;
 		errorZ = fabsf(setPoint.z - filteredData->rateData.z) * sharpness;
-	}
 
-	if (filterConfig.dynamicType > 1) 
-	{
 		errorMultiplierX = CONSTRAIN(1 + fabsf(setPoint.x - filteredData->rateData.x) * sharpness, 1.0f, 10.0f);
 		errorMultiplierY = CONSTRAIN(1 + fabsf(setPoint.y - filteredData->rateData.y) * sharpness, 1.0f, 10.0f);
 		errorMultiplierZ = CONSTRAIN(1 + fabsf(setPoint.z - filteredData->rateData.z) * sharpness, 1.0f, 10.0f);
@@ -174,6 +172,7 @@ void filter_data(volatile axisData_t *gyroRateData, volatile axisData_t *gyroAcc
 			setpointGyroRatioZ = (25.0f + fabsf(filteredData->rateData.z)) / (25.0f + fabsf(setPoint.z));
 		}
 	}
+
 	switch (filterConfig.dynamicType) {
 		case 0:
 		filterConfig.roll_lpf_hz = filterConfig.base_roll_lpf_hz;
@@ -207,23 +206,27 @@ void filter_data(volatile axisData_t *gyroRateData, volatile axisData_t *gyroAcc
 		break;
 		case 2:
 
-			filterConfig.roll_lpf_hz = CONSTRAIN(filterConfig.base_roll_lpf_hz * fabsf((1.0f - setpointGyroRatioX) * errorMultiplierX), filterConfig.dynamicMin, filterConfig.dynamicMax);
+			filterConfig.roll_lpf_hz = pt1FilterApply(&frequencyChangeFilterX, CONSTRAIN(filterConfig.base_roll_lpf_hz + fabsf(filteredData->rateData.x - previousRateDataX) * REFRESH_RATE * sharpness, filterConfig.dynamicMin, filterConfig.dynamicMax));
 
-			filterConfig.pitch_lpf_hz = CONSTRAIN(filterConfig.base_pitch_lpf_hz * fabsf((1.0f - setpointGyroRatioY) * errorMultiplierY), filterConfig.dynamicMin, filterConfig.dynamicMax);
+			filterConfig.pitch_lpf_hz = pt1FilterApply(&frequencyChangeFilterY, CONSTRAIN(filterConfig.base_pitch_lpf_hz * fabsf(filteredData->rateData.y - previousRateDataY) * REFRESH_RATE * sharpness, filterConfig.dynamicMin, filterConfig.dynamicMax));
 
-			filterConfig.yaw_lpf_hz = CONSTRAIN(filterConfig.base_yaw_lpf_hz * fabsf((1.0f - setpointGyroRatioY) * errorMultiplierY), filterConfig.dynamicMin, filterConfig.dynamicMax);
+			filterConfig.yaw_lpf_hz = pt1FilterApply(&frequencyChangeFilterZ, CONSTRAIN(filterConfig.base_yaw_lpf_hz * fabsf(filteredData->rateData.z - previousRateDataZ) * REFRESH_RATE * sharpness, filterConfig.dynamicMin, filterConfig.dynamicMax));
+
+			previousRateDataX = filteredData->rateData.x;
+			previousRateDataY = filteredData->rateData.y;
+			previousRateDataZ = filteredData->rateData.z;
 		break;
 		case 3:
 		if (setPointNew)
 		{
 			if (setPoint.x != 0.0f && oldSetPoint.x != setPoint.x)
-			filterConfig.roll_lpf_hz = CONSTRAIN(errorX + filterConfig.base_roll_lpf_hz + fabsf(filteredData->rateData.x / 5), filterConfig.dynamicMin, filterConfig.dynamicMax);
+			filterConfig.roll_lpf_hz = pt1FilterApply(&frequencyChangeFilterX, CONSTRAIN(errorX + filterConfig.base_roll_lpf_hz + fabsf(filteredData->rateData.x / 5), filterConfig.dynamicMin, filterConfig.dynamicMax));
 
 			if (setPoint.y != 0.0f && oldSetPoint.y != setPoint.y)
-			filterConfig.pitch_lpf_hz = CONSTRAIN(errorY + filterConfig.base_pitch_lpf_hz + fabsf(filteredData->rateData.y / 5), filterConfig.dynamicMin, filterConfig.dynamicMax);
+			filterConfig.pitch_lpf_hz = pt1FilterApply(&frequencyChangeFilterY, CONSTRAIN(errorY + filterConfig.base_pitch_lpf_hz + fabsf(filteredData->rateData.y / 5), filterConfig.dynamicMin, filterConfig.dynamicMax));
 
 			if (setPoint.z != 0.0f && oldSetPoint.z != setPoint.z)
-			filterConfig.yaw_lpf_hz = CONSTRAIN(errorZ + filterConfig.base_yaw_lpf_hz + fabsf(filteredData->rateData.z / 5), filterConfig.dynamicMin, filterConfig.dynamicMax);
+			filterConfig.yaw_lpf_hz = pt1FilterApply(&frequencyChangeFilterZ, CONSTRAIN(errorZ + filterConfig.base_yaw_lpf_hz + fabsf(filteredData->rateData.z / 5), filterConfig.dynamicMin, filterConfig.dynamicMax));
 			memcpy((uint32_t *)&oldSetPoint, (uint32_t *)&setPoint, sizeof(axisData_t));
 		}
 		break;
@@ -260,7 +263,7 @@ void filter_data(volatile axisData_t *gyroRateData, volatile axisData_t *gyroAcc
 
 		break;
 	}
-if (filterConfig.dynamicType != 0) 
+if (filterConfig.dynamicType != 0)
 {
 	if (oldRollHz > (filterConfig.roll_lpf_hz + 2.5f) || oldRollHz < (filterConfig.roll_lpf_hz - 2.5f))
 	{
