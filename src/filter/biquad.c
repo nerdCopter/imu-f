@@ -9,8 +9,6 @@ void biquad_init(float filterCutFreq, biquad_axis_state_t *state, float refreshR
     float bigA, omega, sn, cs, alpha, beta;
     float a0, a1, a2, b0, b1, b2;
 
-    float dbGain = 4.0;
-
     samplingRate = (1.0f / refreshRateSeconds);
 
 	omega = 2.0f * (float)M_PI_FLOAT * (float) filterCutFreq / samplingRate;
