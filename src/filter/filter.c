@@ -100,11 +100,11 @@ void filter_data(volatile axisData_t *gyroRateData, volatile axisData_t *gyroAcc
 		memcpy((uint32_t *)&setPoint, (uint32_t *)&setPointInt, sizeof(axisData_t));
 	}
 
-	kalman_update(gyroRateData, filteredData);
-
 	filteredData->rateData.x = biquad_update(filteredData->rateData.x, &(lpfFilterStateRate.x));
 	filteredData->rateData.y = biquad_update(filteredData->rateData.y, &(lpfFilterStateRate.y));
 	filteredData->rateData.z = biquad_update(filteredData->rateData.z, &(lpfFilterStateRate.z));
+
+	kalman_update(gyroRateData, filteredData);
 
 	if (setPointNew)
 	{
