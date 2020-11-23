@@ -19,7 +19,6 @@ typedef struct kalman
     float x;     //state
     float lastX; //previous state
     float e;     //multiplier or adder to q
-    float s;     //changes how dynamic e is
 } kalman_t;
 
 typedef struct variance

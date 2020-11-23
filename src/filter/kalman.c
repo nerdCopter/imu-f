@@ -6,23 +6,22 @@
 variance_t varStruct;
 kalman_t   kalmanFilterStateRate[3];
 
-void init_kalman(kalman_t *filter, float q, float sharpness)
+void init_kalman(kalman_t *filter, float q)
 {
     memset(filter, 0, sizeof(kalman_t));
     filter->q = q * 0.001f;      //add multiplier to make tuning easier
     filter->r = 88.0f;           //seeding R at 88.0f
     filter->p = 30.0f;           //seeding P at 30.0f
     filter->e = 1.0f;
-    filter->s = sharpness * 0.01f;
 }
 
 void kalman_init(void)
 {
     setPointNew = 0;
     memset(&varStruct, 0, sizeof(varStruct));
-    init_kalman(&kalmanFilterStateRate[ROLL], filterConfig.roll_q, filterConfig.sharpness);
-    init_kalman(&kalmanFilterStateRate[PITCH], filterConfig.pitch_q, filterConfig.sharpness);
-    init_kalman(&kalmanFilterStateRate[YAW], filterConfig.yaw_q, filterConfig.sharpness);
+    init_kalman(&kalmanFilterStateRate[ROLL], filterConfig.roll_q);
+    init_kalman(&kalmanFilterStateRate[PITCH], filterConfig.pitch_q);
+    init_kalman(&kalmanFilterStateRate[YAW], filterConfig.yaw_q);
     varStruct.inverseN = 1.0f/filterConfig.w;
 }
 
@@ -94,26 +93,13 @@ inline float kalman_process(kalman_t* kalmanState, volatile float input, volatil
   //update last state
   kalmanState->lastX = kalmanState->x;
 
-  if (kalmanState->s != 0.0f) {
-    float average = fabsf(target + kalmanState->lastX) * 0.5f;
-
-    if (average > 10.0f)
-    {
-        float error = fabsf(target - kalmanState->lastX);
-        float ratio = error / average;
-        kalmanState->e = kalmanState->s * powf(ratio, 3.0f);  //"ratio" power 3 and multiply by a gain
-    }
-    //prediction update
-    kalmanState->p = kalmanState->p + (kalmanState->q + kalmanState->e);
-
-  } else {
     if (kalmanState->lastX != 0.0f)
     {
         kalmanState->e = fabsf(1.0f - (target / kalmanState->lastX));
     }
-    //prediction update
-    kalmanState->p = kalmanState->p + (kalmanState->q * kalmanState->e);
-  }
+
+  //prediction update
+  kalmanState->p = kalmanState->p + (kalmanState->q * kalmanState->e);
   //measurement update
   kalmanState->k = kalmanState->p / (kalmanState->p + kalmanState->r);
   kalmanState->x += kalmanState->k * (input - kalmanState->x);

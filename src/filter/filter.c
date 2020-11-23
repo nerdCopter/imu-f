@@ -49,7 +49,7 @@ volatile axisData_t oldSetPoint;
 volatile axisData_t setPoint;
 volatile int allowFilterInit = 1;
 
-float sharpness;
+uint16_t type;
 
 void allow_filter_init(void)
 {
@@ -80,7 +80,7 @@ void filter_init(void)
 	pt1FilterInit(&ay_filter, k, 0.0f);
 	pt1FilterInit(&az_filter, k, 0.0f);
 
-	sharpness = (float)filterConfig.sharpness / 250.0f;
+	type = filterConfig.type;
 }
 
 void filter_data(volatile axisData_t *gyroRateData, volatile axisData_t *gyroAccData, float gyroTempData, filteredData_t *filteredData)
