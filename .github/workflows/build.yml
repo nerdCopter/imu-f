@@ -21,12 +21,12 @@ jobs:
       run: function curl () { command curl --connect-timeout 30 --retry 10 "$@" ; }
 
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@master
       with:
         fetch-depth: 15
 
     - name: ARM SDK
-      uses: fiam/arm-none-eabi-gcc@v1.0.2
+      uses: fiam/arm-none-eabi-gcc@master
       with:
         release: '6-2017-q1'
 
@@ -44,7 +44,7 @@ jobs:
         echo "::set-output name=VER::${VER}"
 
     - name: Upload artifcats
-      uses: actions/upload-artifact@v2-preview
+      uses: actions/upload-artifact@master
       with:
         name: IMUF_${{steps.file_version.outputs.VER}}
         path: output/*.bin
