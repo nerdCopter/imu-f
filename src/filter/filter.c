@@ -58,7 +58,7 @@ void allow_filter_init(void)
 
 void filter_biquad_init(float freq, biquad_axis_state_t *filterState)
 {
-	biquad_init(freq, filterState, REFRESH_RATE, FILTER_TYPE_LOWPASS, BIQUAD_BANDWIDTH);
+	biquad_init(freq, filterState, REFRESH_RATE * (loopDivider + 1), FILTER_TYPE_LOWPASS, BIQUAD_BANDWIDTH);
 }
 
 void filter_init(void)

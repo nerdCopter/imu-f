@@ -56,7 +56,7 @@ void update_kalman_covariance(volatile axisData_t *gyroRateData)
     varStruct.zvarianceWindow[varStruct.windex] = zvarianceElement;
 
     varStruct.windex++;
-    if ( varStruct.windex >= filterConfig.w)
+    if ( varStruct.windex > filterConfig.w)
     {
          varStruct.windex = 0;
     }
