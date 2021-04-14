@@ -106,6 +106,9 @@ void filter_data(volatile axisData_t *gyroRateData, volatile axisData_t *gyroAcc
 	filteredData->rateData.y = biquad_update(filteredData->rateData.y, &(lpfFilterStateRate.y));
 	filteredData->rateData.z = biquad_update(filteredData->rateData.z, &(lpfFilterStateRate.z));
 
+	update_kalman_covariance(gyroRateData);
+
+
 	if (setPointNew)
 	{
 		setPointNew = 0;
