@@ -104,7 +104,7 @@ inline float kalman_process(kalman_t* kalmanState, volatile float input, volatil
   kalmanState->p = kalmanState->p + (kalmanState->q * kalmanState->e);
 
   //measurement update
-  kalmanState->k = kalmanState->p / (kalmanState->p + kalmanState->r);
+  kalmanState->k = kalmanState->p / (kalmanState->p + 10.0f);
   kalmanState->x += kalmanState->k * (input - kalmanState->x);
   kalmanState->p = (1.0f - kalmanState->k) * kalmanState->p;
   return kalmanState->x;
