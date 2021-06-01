@@ -85,8 +85,7 @@ void update_kalman_covariance(volatile axisData_t *gyroRateData)
     kalmanFilterStateRate[YAW].r = squirt * VARIANCE_SCALE;
 }
 
-inline float kalman_process(kalman_t* kalmanState, volatile float input, volatile float target) {
-  target = 0;
+inline float kalman_process(kalman_t* kalmanState, volatile float input) {
 
   //project the state ahead using acceleration
   kalmanState->x += (kalmanState->x - kalmanState->lastX) * kalmanState->k;
@@ -112,8 +111,8 @@ inline float kalman_process(kalman_t* kalmanState, volatile float input, volatil
 
 void kalman_update(volatile axisData_t* input, filteredData_t* output)
 {
-    output->rateData.x = kalman_process(&kalmanFilterStateRate[ROLL], input->x, setPoint.x);
-    output->rateData.y = kalman_process(&kalmanFilterStateRate[PITCH], input->y, setPoint.y);
-    output->rateData.z = kalman_process(&kalmanFilterStateRate[YAW], input->z, setPoint.z);
+    output->rateData.x = kalman_process(&kalmanFilterStateRate[ROLL], input->x);
+    output->rateData.y = kalman_process(&kalmanFilterStateRate[PITCH], input->y);
+    output->rateData.z = kalman_process(&kalmanFilterStateRate[YAW], input->z);
 }
 #pragma GCC pop_options
