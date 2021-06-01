@@ -1,6 +1,6 @@
 #pragma once
 #include "includes.h"
-#include "biquad.h"
+#include "ptnFilter.h"
 
 #define REFRESH_RATE           0.00003125f
 #define DEFAULT_ROLL_Q         3000

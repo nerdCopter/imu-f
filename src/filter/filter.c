@@ -2,7 +2,7 @@
 #include "gyro.h"
 #include "filter.h"
 #include "kalman.h"
-#include "biquad.h"
+#include "ptnFilter.h"
 
 volatile filter_config_t filterConfig =
 {
@@ -42,7 +42,7 @@ float pt1FilterGain(uint16_t f_cut, float dT);
 void  pt1FilterInit(pt1Filter_t *filter, float k, float val);
 float pt1FilterApply(pt1Filter_t *filter, float input);
 
-biquad_state_t lpfFilterStateRate;
+ptnFilter_t lpfFilterStateRate;
 volatile uint32_t setPointNew;
 volatile axisDataInt_t setPointInt;
 volatile axisData_t oldSetPoint;
@@ -56,9 +56,9 @@ void allow_filter_init(void)
 	allowFilterInit = 1;
 }
 
-void filter_biquad_init(float freq, biquad_axis_state_t *filterState)
+void ptnFilter_init(float freq, ptnFilter_axis_t *filterState)
 {
-	biquad_init(freq, filterState, REFRESH_RATE, FILTER_TYPE_LOWPASS, BIQUAD_BANDWIDTH);
+	ptnFilterInit(freq, filterState, 2);
 }
 
 void filter_init(void)
@@ -70,9 +70,9 @@ void filter_init(void)
 	memset((uint32_t *)&oldSetPoint, 0, sizeof(axisData_t));
 	memset((uint32_t *)&setPointInt, 0, sizeof(axisDataInt_t));
 	kalman_init();
-	filter_biquad_init(filterConfig.i_roll_lpf_hz, &(lpfFilterStateRate.x));
-	filter_biquad_init(filterConfig.i_pitch_lpf_hz, &(lpfFilterStateRate.y));
-	filter_biquad_init(filterConfig.i_yaw_lpf_hz, &(lpfFilterStateRate.z));
+	ptnFilter_init(filterConfig.i_roll_lpf_hz, &(lpfFilterStateRate.x));
+	ptnFilter_init(filterConfig.i_pitch_lpf_hz, &(lpfFilterStateRate.y));
+	ptnFilter_init(filterConfig.i_yaw_lpf_hz, &(lpfFilterStateRate.z));
 
 	// set imuf acc cutoff frequency
 	const float k = pt1FilterGain((float)filterConfig.acc_lpf_hz, ACC_READ_RATE);
@@ -102,9 +102,12 @@ void filter_data(volatile axisData_t *gyroRateData, volatile axisData_t *gyroAcc
 
 	kalman_update(gyroRateData, filteredData);
 
-	filteredData->rateData.x = biquad_update(filteredData->rateData.x, &(lpfFilterStateRate.x));
-	filteredData->rateData.y = biquad_update(filteredData->rateData.y, &(lpfFilterStateRate.y));
-	filteredData->rateData.z = biquad_update(filteredData->rateData.z, &(lpfFilterStateRate.z));
+	filteredData->rateData.x = ptnFilterApply(filteredData->rateData.x, &(lpfFilterStateRate.x));
+	filteredData->rateData.y = ptnFilterApply(filteredData->rateData.y, &(lpfFilterStateRate.y));
+	filteredData->rateData.z = ptnFilterApply(filteredData->rateData.z, &(lpfFilterStateRate.z));
+
+	update_kalman_covariance(gyroRateData);
+
 
 	if (setPointNew)
 	{
