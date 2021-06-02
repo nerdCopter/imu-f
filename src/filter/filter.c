@@ -58,7 +58,7 @@ void allow_filter_init(void)
 
 void ptnFilter_init(float freq, ptnFilter_axis_t *filterState)
 {
-	ptnFilterInit(freq, filterState, 2);
+	ptnFilterInit(freq, filterState, 3);
 }
 
 void filter_init(void)
