@@ -49,8 +49,6 @@ volatile axisData_t oldSetPoint;
 volatile axisData_t setPoint;
 volatile int allowFilterInit = 1;
 
-float sharpness;
-
 void allow_filter_init(void)
 {
 	allowFilterInit = 1;
@@ -58,7 +56,7 @@ void allow_filter_init(void)
 
 void ptnFilter_init(float freq, ptnFilter_axis_t *filterState)
 {
-	ptnFilterInit(freq, filterState, 2);
+	ptnFilterInit(freq, filterState, filterConfig.ptnFilterType);
 }
 
 void filter_init(void)
@@ -79,8 +77,6 @@ void filter_init(void)
 	pt1FilterInit(&ax_filter, k, 0.0f);
 	pt1FilterInit(&ay_filter, k, 0.0f);
 	pt1FilterInit(&az_filter, k, 0.0f);
-
-	sharpness = (float)filterConfig.sharpness / 250.0f;
 }
 
 void filter_data(volatile axisData_t *gyroRateData, volatile axisData_t *gyroAccData, float gyroTempData, filteredData_t *filteredData)
