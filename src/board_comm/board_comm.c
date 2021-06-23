@@ -154,7 +154,7 @@ static void run_command(volatile imufCommand_t* command, volatile imufCommand_t*
                 gyroSettingsConfig.smallX        = (int32_t) ((int16_t)(command->param8 >> 16));
                 gyroSettingsConfig.smallY        = (int32_t) ((int16_t)(command->param9 & 0xFFFF));
                 gyroSettingsConfig.smallZ        = (int32_t) ((int16_t)(command->param9 >> 16));
-                filterConfig.ptnFilterType       = (int16_t) ((int16_t)(command->param10 >> 16));
+                filterConfig.ptnFilterType       = (int16_t)(command->param10 >> 16);
                 if (!filterConfig.ptnFilterType || filterConfig.ptnFilterType > 4)
                 {
                 	filterConfig.ptnFilterType = 3;

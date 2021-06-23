@@ -6,25 +6,21 @@
 
 volatile filter_config_t filterConfig =
 {
-	DEFAULT_ROLL_Q,
-	DEFAULT_PITCH_Q,
-	DEFAULT_YAW_Q,
-	MIN_WINDOW_SIZE,
-
-	(float)DEFAULT_ROLL_Q,
-	(float)DEFAULT_PITCH_Q,
-	(float)DEFAULT_YAW_Q,
-
-	(float)BASE_LPF_HZ,
-	(float)BASE_LPF_HZ,
-	(float)BASE_LPF_HZ,
-
-	40.0f,
-
-	BASE_LPF_HZ,
-	BASE_LPF_HZ,
-	BASE_LPF_HZ,
-	100,
+    DEFAULT_ROLL_Q,             //init defaults for: uint16_t i_roll_q;
+    DEFAULT_PITCH_Q,            //init defaults for: uint16_t i_pitch_q;
+    DEFAULT_YAW_Q,              //init defaults for: uint16_t i_yaw_q;
+    MIN_WINDOW_SIZE,            //init defaults for: uint16_t w;
+    (float)DEFAULT_ROLL_Q,      //init defaults for: float roll_q;
+    (float)DEFAULT_PITCH_Q,     //init defaults for: float pitch_q;
+    (float)DEFAULT_YAW_Q,       //init defaults for: float yaw_q;
+    (float)BASE_LPF_HZ,         //init defaults for: float pitch_lpf_hz;
+    (float)BASE_LPF_HZ,         //init defaults for: float roll_lpf_hz;
+    (float)BASE_LPF_HZ,         //init defaults for: float yaw_lpf_hz;
+    40.0f,                      //init defaults for: uint16_t acc_lpf_hz;
+    BASE_LPF_HZ,                //init defaults for: uint16_t i_roll_lpf_hz;
+    BASE_LPF_HZ,                //init defaults for: uint16_t i_pitch_lpf_hz;
+    BASE_LPF_HZ,                //init defaults for: uint16_t i_yaw_lpf_hz;
+    3,                          //init defaults for: uint16_t ptnFilterType;
 };
 
 // PT1 Low Pass filter
