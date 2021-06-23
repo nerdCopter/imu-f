@@ -6,25 +6,21 @@
 
 volatile filter_config_t filterConfig =
 {
-	DEFAULT_ROLL_Q,
-	DEFAULT_PITCH_Q,
-	DEFAULT_YAW_Q,
-	MIN_WINDOW_SIZE,
-
-	(float)DEFAULT_ROLL_Q,
-	(float)DEFAULT_PITCH_Q,
-	(float)DEFAULT_YAW_Q,
-
-	(float)BASE_LPF_HZ,
-	(float)BASE_LPF_HZ,
-	(float)BASE_LPF_HZ,
-
-	40.0f,
-
-	BASE_LPF_HZ,
-	BASE_LPF_HZ,
-	BASE_LPF_HZ,
-	100,
+	DEFAULT_ROLL_Q,				    //uint16_t i_roll_q;
+	DEFAULT_PITCH_Q,			    //uint16_t i_pitch_q;
+	DEFAULT_YAW_Q,				    //uint16_t i_yaw_q;
+	MIN_WINDOW_SIZE,			    //uint16_t w;
+	(float)DEFAULT_ROLL_Q,		    //float roll_q;
+	(float)DEFAULT_PITCH_Q,		    //float pitch_q;
+	(float)DEFAULT_YAW_Q,		    //float yaw_q;
+	(float)BASE_LPF_HZ,			    //float pitch_lpf_hz;
+	(float)BASE_LPF_HZ,			    //float roll_lpf_hz;
+	(float)BASE_LPF_HZ,			    //float yaw_lpf_hz;
+	40.0f,						    //uint16_t acc_lpf_hz;
+	BASE_LPF_HZ,				    //uint16_t i_roll_lpf_hz;
+	BASE_LPF_HZ,				    //uint16_t i_pitch_lpf_hz;
+	BASE_LPF_HZ,				    //uint16_t i_yaw_lpf_hz;
+	3,							    //uint16_t ptnFilterType;
 };
 
 // PT1 Low Pass filter
@@ -54,9 +50,9 @@ void allow_filter_init(void)
 	allowFilterInit = 1;
 }
 
-void ptnFilter_init(float freq, ptnFilter_axis_t *filterState)
+void ptnFilter_init(float freq, ptnFilter_axis_t *filterState, uint16_t ptn)
 {
-	ptnFilterInit(freq, filterState, filterConfig.ptnFilterType);
+	ptnFilterInit(freq, filterState, (uint8_t)(ptn) );
 }
 
 void filter_init(void)
@@ -68,9 +64,10 @@ void filter_init(void)
 	memset((uint32_t *)&oldSetPoint, 0, sizeof(axisData_t));
 	memset((uint32_t *)&setPointInt, 0, sizeof(axisDataInt_t));
 	kalman_init();
-	ptnFilter_init(filterConfig.i_roll_lpf_hz, &(lpfFilterStateRate.x));
-	ptnFilter_init(filterConfig.i_pitch_lpf_hz, &(lpfFilterStateRate.y));
-	ptnFilter_init(filterConfig.i_yaw_lpf_hz, &(lpfFilterStateRate.z));
+
+	ptnFilter_init(filterConfig.i_roll_lpf_hz, &(lpfFilterStateRate.x), filterConfig.ptnFilterType);
+	ptnFilter_init(filterConfig.i_pitch_lpf_hz, &(lpfFilterStateRate.y), filterConfig.ptnFilterType);
+	ptnFilter_init(filterConfig.i_yaw_lpf_hz, &(lpfFilterStateRate.z), filterConfig.ptnFilterType);
 
 	// set imuf acc cutoff frequency
 	const float k = pt1FilterGain((float)filterConfig.acc_lpf_hz, ACC_READ_RATE);
@@ -104,7 +101,6 @@ void filter_data(volatile axisData_t *gyroRateData, volatile axisData_t *gyroAcc
 
 	update_kalman_covariance(gyroRateData);
 
-
 	if (setPointNew)
 	{
 		setPointNew = 0;
@@ -132,6 +128,10 @@ void pt1FilterInit(pt1Filter_t *filter, float k, float val)
 
 float pt1FilterApply(pt1Filter_t *filter, float input)
 {
+	//debug
+    flightVerson.firmware = (filterConfig.ptnFilterType*100);
+    //flightVerson.firmware = (filterConfig.w*100);
+
     filter->state = filter->state + filter->k * (input - filter->state);
     return filter->state;
 }

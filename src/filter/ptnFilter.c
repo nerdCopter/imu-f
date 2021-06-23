@@ -22,6 +22,12 @@ void ptnFilterUpdate(float f_cut, ptnFilter_axis_t *filter, float ScaleF) {
 
 float ptnFilterApply(float input, ptnFilter_axis_t *filter) {
 int n;
+
+	//debug
+    flightVerson.firmware = (filterConfig.ptnFilterType*100);
+    //flightVerson.firmware = (filterConfig.w*100);
+
+
 	filter->state[0] = input;
 	for (n = 1; n <= filter->order; n++)
 		filter->state[n] += (filter->state[n - 1] - filter->state[n])
