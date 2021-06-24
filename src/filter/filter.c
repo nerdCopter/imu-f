@@ -6,25 +6,21 @@
 
 volatile filter_config_t filterConfig =
 {
-	DEFAULT_ROLL_Q,
-	DEFAULT_PITCH_Q,
-	DEFAULT_YAW_Q,
-	MIN_WINDOW_SIZE,
-
-	(float)DEFAULT_ROLL_Q,
-	(float)DEFAULT_PITCH_Q,
-	(float)DEFAULT_YAW_Q,
-
-	(float)BASE_LPF_HZ,
-	(float)BASE_LPF_HZ,
-	(float)BASE_LPF_HZ,
-
-	40.0f,
-
-	BASE_LPF_HZ,
-	BASE_LPF_HZ,
-	BASE_LPF_HZ,
-	100,
+    DEFAULT_ROLL_Q,             //init defaults for: uint16_t i_roll_q;
+    DEFAULT_PITCH_Q,            //init defaults for: uint16_t i_pitch_q;
+    DEFAULT_YAW_Q,              //init defaults for: uint16_t i_yaw_q;
+    MIN_WINDOW_SIZE,            //init defaults for: uint16_t w;
+    (float)DEFAULT_ROLL_Q,      //init defaults for: float roll_q;
+    (float)DEFAULT_PITCH_Q,     //init defaults for: float pitch_q;
+    (float)DEFAULT_YAW_Q,       //init defaults for: float yaw_q;
+    (float)BASE_LPF_HZ,         //init defaults for: float pitch_lpf_hz;
+    (float)BASE_LPF_HZ,         //init defaults for: float roll_lpf_hz;
+    (float)BASE_LPF_HZ,         //init defaults for: float yaw_lpf_hz;
+    40.0f,                      //init defaults for: uint16_t acc_lpf_hz;
+    BASE_LPF_HZ,                //init defaults for: uint16_t i_roll_lpf_hz;
+    BASE_LPF_HZ,                //init defaults for: uint16_t i_pitch_lpf_hz;
+    BASE_LPF_HZ,                //init defaults for: uint16_t i_yaw_lpf_hz;
+    3,                          //init defaults for: uint16_t ptnFilterType;
 };
 
 // PT1 Low Pass filter
@@ -49,8 +45,6 @@ volatile axisData_t oldSetPoint;
 volatile axisData_t setPoint;
 volatile int allowFilterInit = 1;
 
-float sharpness;
-
 void allow_filter_init(void)
 {
 	allowFilterInit = 1;
@@ -58,7 +52,7 @@ void allow_filter_init(void)
 
 void ptnFilter_init(float freq, ptnFilter_axis_t *filterState)
 {
-	ptnFilterInit(freq, filterState, 2);
+	ptnFilterInit(freq, filterState, filterConfig.ptnFilterType);
 }
 
 void filter_init(void)
@@ -79,8 +73,6 @@ void filter_init(void)
 	pt1FilterInit(&ax_filter, k, 0.0f);
 	pt1FilterInit(&ay_filter, k, 0.0f);
 	pt1FilterInit(&az_filter, k, 0.0f);
-
-	sharpness = (float)filterConfig.sharpness / 250.0f;
 }
 
 void filter_data(volatile axisData_t *gyroRateData, volatile axisData_t *gyroAccData, float gyroTempData, filteredData_t *filteredData)
