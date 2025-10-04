@@ -17,5 +17,5 @@ typedef struct ptnFilter_s {
 } ptnFilter_t;
 
 void ptnFilterInit(float f_cut, ptnFilter_axis_t *filter, uint8_t order);
-void ptnFilterUpdate(float f_cut, ptnFilter_axis_t *filter, float ScaleF);
+void ptnFilterUpdate(float f_cut, ptnFilter_axis_t *filter);
 float ptnFilterApply(float input, ptnFilter_axis_t *filter);

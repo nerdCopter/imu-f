@@ -43,7 +43,7 @@ jobs:
         mv output/F3.bin output/IMUF_${VER}.bin
         echo "::set-output name=VER::${VER}"
 
-    - name: Upload artifcats
+    - name: Upload artifacts
       uses: actions/upload-artifact@master
       with:
         name: IMUF_${{steps.file_version.outputs.VER}}

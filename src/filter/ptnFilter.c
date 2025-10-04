@@ -3,21 +3,22 @@
 
 // PTn Low Pass filter
 void ptnFilterInit(float f_cut, ptnFilter_axis_t *filter, uint8_t order) {
-	// AdjCutHz = CutHz /(sqrtf(powf(2, 1/Order) -1))
-	const float ScaleF[] = { 1.0f, 1.553773974f, 1.961459177f, 2.298959223f };
+	// Cutoff frequency fix: removed ScaleF correction to match Betaflight behavior
+	// The configured cutoff now represents the per-stage cutoff, not the combined -3dB point
+	// This provides more aggressive filtering and matches user expectations
+	// For cascaded filters: combined -3dB point = f_cut * sqrt(2^(1/order) - 1)
+	// Example: PT2 with 90Hz configured -> per-stage 90Hz, combined -3dB at ~58Hz
 	int n;
-	float Adj_f_cut;
 	filter->order = order;
 	for (n = 1; n <= filter->order; n++)
 		filter->state[n] = 0.0f;
-	Adj_f_cut = (float)f_cut * ScaleF[filter->order - 1];
-	filter->k = REFRESH_RATE / ((1.0f / (2.0f * M_PI_FLOAT * Adj_f_cut)) + REFRESH_RATE);
+	filter->k = REFRESH_RATE / ((1.0f / (2.0f * M_PI_FLOAT * f_cut)) + REFRESH_RATE);
 } // ptnFilterInit
 
-void ptnFilterUpdate(float f_cut, ptnFilter_axis_t *filter, float ScaleF) {
-  float Adj_f_cut;
-  Adj_f_cut = (float)f_cut * ScaleF;
-  filter->k = REFRESH_RATE / ((1.0f / (2.0f * M_PI_FLOAT * Adj_f_cut)) + REFRESH_RATE);
+void ptnFilterUpdate(float f_cut, ptnFilter_axis_t *filter) {
+  // Cutoff frequency fix: removed ScaleF parameter
+  // Now uses configured cutoff directly for filter coefficient update
+  filter->k = REFRESH_RATE / ((1.0f / (2.0f * M_PI_FLOAT * f_cut)) + REFRESH_RATE);
 }
 
 float ptnFilterApply(float input, ptnFilter_axis_t *filter) {
