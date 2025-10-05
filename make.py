@@ -38,30 +38,11 @@ try:
 except ImportError:
     Fore = Style = ColorFallback()
 
-# Magic code
-# add new method for python string object
-# used
-# STM32F1_MCU_DIR.path
-class PyObject_HEAD(c.Structure):
-    _fields_ = [
-        ('HEAD', c.c_ubyte * (object.__basicsize__ - c.sizeof(c.c_void_p))),
-        ('ob_type', c.c_void_p)
-    ]
-
-_get_dict = c.pythonapi._PyObject_GetDictPtr
-_get_dict.restype = c.POINTER(c.py_object)
-_get_dict.argtypes = [c.py_object]
-
-def get_dict(object):
-    return _get_dict(object).contents.value
-
-@property
-def get_path_method(self):
+def fix_path(path_string):
     if platform.system() == 'Windows':
-        return self.replace("/", "\\")
-    return self
+        return path_string.replace("/", "\\")
+    return path_string
 
-get_dict(str)['path'] = get_path_method
 
 
 
@@ -354,8 +335,8 @@ def find_between( s, first, last ):
 class CommandRunnerThread(threading.Thread):
 
     def __init__(self, command, output, target, *args, **kwargs):
-        self.command = command.path  # we need to be sure all '/' are properly converted for Windows
-        self.output = output.path    # store the output of the command for printing purposes
+        self.command = fix_path(command)  # we need to be sure all '/' are properly converted for Windows
+        self.output = fix_path(output)    # store the output of the command for printing purposes
         self.target = target
         self.queue = kwargs.pop("queue", None)
         self.deps = kwargs.pop("dependencies", None)
@@ -451,7 +432,7 @@ class CommandRunnerThread(threading.Thread):
 
 def FileModified(fileName, target_config):
     # get the output file `output/.../filename.o`
-    outputFile = os.path.join("output", makeObject(fileName.path, target_config.target))
+    outputFile = os.path.join("output", makeObject(fix_path(fileName), target_config.target))
     # if we haven't compiled, then return true
     if not os.path.exists(outputFile):
         return True
@@ -461,7 +442,7 @@ def FileModified(fileName, target_config):
         return True
 
     # if the target file is more recent than the output, return true
-    target_file = "low_level_driver/boarddef.h".path
+    target_file = fix_path("low_level_driver/boarddef.h")
     if os.path.getmtime(target_file) > os.path.getmtime(outputFile):
         return True
 
@@ -529,15 +510,15 @@ def ProcessList(fileNames, target_config):
         if FileModified(fileName, target_config):
             if (fileName[-2:] == ".s") or ((fileName[-2:] == ".S")):
                 commands.append(asm_command.format(
-                    INPUT_FILE=fileName.path,
-                    OUTPUT_FILE=makeObject(fileName.path, target_config.target),
+                    INPUT_FILE=fix_path(fileName),
+                    OUTPUT_FILE=makeObject(fix_path(fileName), target_config.target),
                     ASMFLAGS=target_config.asmflags,
                     USECOLOR=target_config.useColor,
                 ))
             elif fileName[-2:] == ".c":
                 commands.append(compile_command.format(
-                    INPUT_FILE=fileName.path,
-                    OUTPUT_FILE=makeObject(fileName.path, target_config.target),
+                    INPUT_FILE=fix_path(fileName),
+                    OUTPUT_FILE=makeObject(fix_path(fileName), target_config.target),
                     CFLAGS=target_config.cflags,
                     USECOLOR=target_config.useColor,
                 ))
