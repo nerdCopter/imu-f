@@ -52,7 +52,7 @@ typedef struct imufCommand {
    uint32_t param10;
    uint32_t crc;
    uint32_t syncWord; //overflow, used for sync
-} __attribute__ ((packed)) imufCommand_t;
+} __attribute__ ((packed, aligned(4))) imufCommand_t;
 
 //todo: this should only live here
 extern SPI_InitTypeDef boardCommSpiInitStruct;
