@@ -23,12 +23,8 @@ volatile filter_config_t filterConfig =
     3,                          //init defaults for: uint16_t ptnFilterType;
 };
 
-// PT1 Low Pass filter
+// PT1 Low Pass filter (type now in filter.h)
 bool acc_filter_initialized = false;
-typedef struct pt1Filter_s {
-    float state;
-    float k;
-} pt1Filter_t;
 
 pt1Filter_t ax_filter;
 pt1Filter_t ay_filter;
