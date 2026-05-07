@@ -98,7 +98,7 @@ void filter_data(volatile axisData_t *gyroRateData, volatile axisData_t *gyroAcc
 	filteredData->rateData.y = ptnFilterApply(filteredData->rateData.y, &(lpfFilterStateRate.y));
 	filteredData->rateData.z = ptnFilterApply(filteredData->rateData.z, &(lpfFilterStateRate.z));
 
-	update_kalman_covariance(gyroRateData);
+	update_kalman_covariance(&(filteredData->rateData));
 
 
 	if (setPointNew)
