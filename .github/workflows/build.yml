@@ -5,7 +5,7 @@ on:
   pull_request:
     branches:
     - '*'
-  # repository_dispatch is a newer github-actions feature that will allow building from triggers other than code merge/PR
+  workflow_dispatch:
   repository_dispatch:
     types: [build]
 
@@ -21,7 +21,7 @@ jobs:
       run: function curl () { command curl --connect-timeout 30 --retry 10 "$@" ; }
 
     - name: Checkout
-      uses: actions/checkout@master
+      uses: actions/checkout@v6
       with:
         fetch-depth: 15
 
@@ -31,7 +31,9 @@ jobs:
         release: '6-2017-q1'
 
     - name: Setup Python
-      uses: actions/setup-python@v1
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'
 
     - name: Make
       run: ./make.py -T=F3
@@ -41,10 +43,30 @@ jobs:
       run: |
         VER=$(grep FIRMWARE_VERSION ./src/version.h  | awk '{print $3}')
         mv output/F3.bin output/IMUF_${VER}.bin
-        echo "::set-output name=VER::${VER}"
+        echo "VER=${VER}" >> "$GITHUB_OUTPUT"
 
     - name: Upload artifcats
-      uses: actions/upload-artifact@master
+      uses: actions/upload-artifact@v7
       with:
         name: IMUF_${{steps.file_version.outputs.VER}}
         path: output/*.bin
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+
+    - name: Download artifacts
+      uses: actions/download-artifact@v7
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v2
+      with:
+        draft: true
+        generate_release_notes: true
+        body: |
+          Flash this firmware using the [IMUF Flasher](https://github.com/emuflight/Nemesis/releases/tag/imuf-flasher-0.1.0)
+        files: "**/*.bin"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
