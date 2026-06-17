@@ -44,8 +44,6 @@ def fix_path(path_string):
     return path_string
 
 
-
-
 this_dir = os.path.dirname(os.path.abspath(__file__))
 OUTPUT_PATH = os.path.join(this_dir, "output")
 LIBRARY_PATH = os.path.join(this_dir, "vendor")
