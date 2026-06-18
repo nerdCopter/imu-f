@@ -18,18 +18,18 @@ jobs:
     steps:
 
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         fetch-depth: 15
 
     - name: Setup Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: '3.x'
 
     - name: Restore ARM toolchain cache
       id: cache-toolchain
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: arm-gnu-toolchain-13.3.rel1-x86_64-arm-none-eabi
         key: arm-gnu-toolchain-13.3.rel1-linux-x86_64
@@ -61,7 +61,7 @@ jobs:
         echo "VER=${VER}" >> "$GITHUB_OUTPUT"
 
     - name: Upload artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: IMUF_${{steps.artifact.outputs.VER}}
         path: output/*.bin
@@ -73,10 +73,10 @@ jobs:
     steps:
 
     - name: Download artifacts
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
 
     - name: Create Release
-      uses: softprops/action-gh-release@v2
+      uses: softprops/action-gh-release@v3
       with:
         draft: true
         generate_release_notes: true
