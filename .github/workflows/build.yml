@@ -12,7 +12,23 @@ on:
 name: Build IMU-F
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v6
+      with:
+        fetch-depth: 15
+
+    - name: Kalman simulation test
+      run: |
+        cd test_kalman
+        gcc -o /tmp/kalman_test libfixmath/fix16.c test.c -O0 -lpthread
+        /tmp/kalman_test
+
   build:
+    needs: test
     timeout-minutes: 30
     runs-on: ubuntu-latest
     steps:
@@ -43,12 +59,6 @@ jobs:
 
     - name: Add toolchain to PATH
       run: echo "$(pwd)/arm-gnu-toolchain-13.3.rel1-x86_64-arm-none-eabi/bin" >> $GITHUB_PATH
-
-    - name: Kalman simulation test
-      run: |
-        cd test_kalman
-        gcc -o /tmp/kalman_test libfixmath/fix16.c test.c -O0 -lpthread
-        /tmp/kalman_test
 
     - name: Build firmware
       run: python3 make.py -C -T F3
