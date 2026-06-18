@@ -20,8 +20,9 @@ case $(uname) in
         DOWNLOAD_URL="https://developer.arm.com/-/media/Files/downloads/gnu/13.3.rel1/binrel/arm-gnu-toolchain-13.3.rel1-x86_64-arm-none-eabi.tar.xz"
         ;;
     "Darwin" )
-        TOOLCHAIN_DIR="arm-gnu-toolchain-13.3.rel1-darwin-x86_64-arm-none-eabi"
-        DOWNLOAD_URL="https://developer.arm.com/-/media/Files/downloads/gnu/13.3.rel1/binrel/arm-gnu-toolchain-13.3.rel1-darwin-x86_64-arm-none-eabi.tar.xz"
+        DARWIN_ARCH=$(uname -m)
+        TOOLCHAIN_DIR="arm-gnu-toolchain-13.3.rel1-darwin-${DARWIN_ARCH}-arm-none-eabi"
+        DOWNLOAD_URL="https://developer.arm.com/-/media/Files/downloads/gnu/13.3.rel1/binrel/arm-gnu-toolchain-13.3.rel1-darwin-${DARWIN_ARCH}-arm-none-eabi.tar.xz"
         ;;
     * )
         echo "Error: Unsupported operating system ($(uname)). Exiting."
@@ -59,10 +60,10 @@ echo "Setting up PATH..."
 TOOLCHAIN_BIN_PATH="$(pwd)/$TOOLCHAIN_DIR/bin"
 export PATH="$PATH:$TOOLCHAIN_BIN_PATH"
 
-echo "Executing build script with: python make.py -C -T F3"
+echo "Executing build script with: python3 make.py -C -T F3"
 
 # Execute the python build script and check the result immediately
-if ! python make.py -C -T F3; then
+if ! python3 make.py -C -T F3; then
     echo "=========================================================="
     echo "❌ Build failed. Check the output above for errors."
     echo "=========================================================="
