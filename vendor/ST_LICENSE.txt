@@ -13,16 +13,19 @@ What is known:
   "MCD-ST Liberty SW License Agreement V2.pdf". An ST staff post of
   1 November 2013 on community.st.com ("Software license Liberty V2") says the
   agreement is attached; that attachment link now returns HTTP 404.
-- A copy of ST's later package, STM32F30x_DSP_StdPeriph_Lib V1.3.0 (StdPeriph
-  driver V1.2.4, 15-December-2021), is at
-  https://github.com/dcmde/STM32F30x_DSP_StdPeriph_Lib_V1.3.0 (third-party
-  copy, not compared with ST's zip). Its file
-  Libraries/STM32F30x_StdPeriph_Driver/LICENSE.txt says: outside a package,
-  "the terms of the SLA0044 license shall apply and are fully reproduced below"
-  (SLA0044 Rev5/February 2018). So ST applies SLA0044 to this driver in V1.2.4.
-  The same copy has Package_license.md (SLA0048 Rev4/March 2018).
-Not found: the text of "MCD-ST Liberty SW License Agreement V2.pdf", and an ST
-statement for V1.2.3 (the version kept here).
+- ST's own download, STSW-STM32108 file stsw-stm32108_v1-3-0.zip (package
+  STM32F30x_DSP_StdPeriph_Lib V1.3.0, 15-December-2021), states:
+  * Libraries/STM32F30x_StdPeriph_Driver/LICENSE.txt: outside a package "the
+    terms of the SLA0044 license shall apply and are fully reproduced below"
+    (SLA0044 Rev5/February 2018). Its text equals Part 1 below, apart from the
+    file's Windows-1252 quote characters.
+  * Libraries/STM32F30x_StdPeriph_Driver/Release_Notes.html, "Update history
+    V1.2.4 / 15-December-2021": "All source files: update disclaimer to add
+    reference to the new license agreement." The V1.2.3 (2015) files kept here
+    carry the earlier disclaimer, the Liberty V2 header.
+  * Package_license.md: SLA0048 Rev4/March 2018.
+Not found: the text of "MCD-ST Liberty SW License Agreement V2.pdf". The V1.3.0
+zip does not contain it.
 
 Part 2: Software Package License Agreement SLA0048 Rev 6 (February 2026,
 document dm00218346), linked from
