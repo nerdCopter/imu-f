@@ -53,9 +53,13 @@ jobs:
     - name: Download ARM toolchain
       if: steps.cache-toolchain.outputs.cache-hit != 'true'
       run: |
-        curl --connect-timeout 30 --retry 10 -L \
-          "https://developer.arm.com/-/media/Files/downloads/gnu/13.3.rel1/binrel/arm-gnu-toolchain-13.3.rel1-x86_64-arm-none-eabi.tar.xz" \
-          | tar -xJf -
+        # SHA-256 from Arm's arm-gnu-toolchain-13.3.rel1-x86_64-arm-none-eabi.tar.xz.sha256asc,
+        # the same value build.sh checks. Extract only after the archive is verified.
+        curl --connect-timeout 30 --retry 10 -fL -o toolchain.tar.xz \
+          "https://developer.arm.com/-/media/Files/downloads/gnu/13.3.rel1/binrel/arm-gnu-toolchain-13.3.rel1-x86_64-arm-none-eabi.tar.xz"
+        echo "95c011cee430e64dd6087c75c800f04b9c49832cc1000127a92a97f9c8d83af4  toolchain.tar.xz" | sha256sum -c -
+        tar -xJf toolchain.tar.xz
+        rm -f toolchain.tar.xz
 
     - name: Add toolchain to PATH
       run: echo "$(pwd)/arm-gnu-toolchain-13.3.rel1-x86_64-arm-none-eabi/bin" >> $GITHUB_PATH
