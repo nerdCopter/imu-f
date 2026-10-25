@@ -16,8 +16,16 @@ BUILD_OUTPUT_FILE="output/F3.bin"
 # 1a. Detect Operating System
 case $(uname) in
     "Linux" )
-        TOOLCHAIN_DIR="arm-gnu-toolchain-13.3.rel1-x86_64-arm-none-eabi"
-        DOWNLOAD_URL="https://developer.arm.com/-/media/Files/downloads/gnu/13.3.rel1/binrel/arm-gnu-toolchain-13.3.rel1-x86_64-arm-none-eabi.tar.xz"
+        case $(uname -m) in
+            x86_64 )          LINUX_ARCH="x86_64" ;;
+            aarch64 | arm64 ) LINUX_ARCH="aarch64" ;;
+            * )
+                echo "Error: Unsupported Linux architecture ($(uname -m)). Exiting."
+                exit 1
+                ;;
+        esac
+        TOOLCHAIN_DIR="arm-gnu-toolchain-13.3.rel1-${LINUX_ARCH}-arm-none-eabi"
+        DOWNLOAD_URL="https://developer.arm.com/-/media/Files/downloads/gnu/13.3.rel1/binrel/arm-gnu-toolchain-13.3.rel1-${LINUX_ARCH}-arm-none-eabi.tar.xz"
         ;;
     "Darwin" )
         DARWIN_ARCH=$(uname -m)
@@ -35,9 +43,11 @@ if [ ! -d "$TOOLCHAIN_DIR" ] || [ ! -f "$TOOLCHAIN_DIR/bin/arm-none-eabi-gcc" ];
 
     echo "Detected OS: $(uname). Starting download..."
 
-    # 1b. Download (silent and follow redirects) and pipe directly to tar for extraction
-    # 'xJf' is used: 'x' extract, 'J' for xz, 'f' for file/stream
-    if ! curl -L -# "$DOWNLOAD_URL" | tar -xJf -; then
+    # 1b. Download to a file (-f fails on HTTP errors, so a curl failure is not masked
+    # by tar), then extract. 'xJf': extract, xz, from file.
+    ARCHIVE="${TOOLCHAIN_DIR}.tar.xz"
+    if ! curl -fL -# -o "$ARCHIVE" "$DOWNLOAD_URL" || ! tar -xJf "$ARCHIVE"; then
+        rm -f "$ARCHIVE"
         echo "========================================================================="
         echo "ERROR: Failed to download or extract the ARM toolchain."
         echo "Please check if 'curl' and 'tar' are installed and the URL is still valid."
@@ -45,6 +55,7 @@ if [ ! -d "$TOOLCHAIN_DIR" ] || [ ! -f "$TOOLCHAIN_DIR/bin/arm-none-eabi-gcc" ];
         exit 1
     fi
 
+    rm -f "$ARCHIVE"
     echo "Download and extraction of $TOOLCHAIN_DIR completed successfully."
 else
     echo "Toolchain directory '$TOOLCHAIN_DIR' and required binary found. Skipping download and extraction."
@@ -58,7 +69,7 @@ echo "Setting up PATH..."
 # Export the new PATH variable, using 'pwd' to ensure we get the absolute path
 # to the toolchain's bin directory regardless of where the script is called from.
 TOOLCHAIN_BIN_PATH="$(pwd)/$TOOLCHAIN_DIR/bin"
-export PATH="$PATH:$TOOLCHAIN_BIN_PATH"
+export PATH="$TOOLCHAIN_BIN_PATH:$PATH"
 
 echo "Executing build script with: python3 make.py -C -T F3"
 
