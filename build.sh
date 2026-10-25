@@ -17,8 +17,14 @@ BUILD_OUTPUT_FILE="output/F3.bin"
 case $(uname) in
     "Linux" )
         case $(uname -m) in
-            x86_64 )          LINUX_ARCH="x86_64" ;;
-            aarch64 | arm64 ) LINUX_ARCH="aarch64" ;;
+            x86_64 )
+                LINUX_ARCH="x86_64"
+                EXPECTED_SHA256="95c011cee430e64dd6087c75c800f04b9c49832cc1000127a92a97f9c8d83af4"
+                ;;
+            aarch64 | arm64 )
+                LINUX_ARCH="aarch64"
+                EXPECTED_SHA256="c8824bffd057afce2259f7618254e840715f33523a3d4e4294f471208f976764"
+                ;;
             * )
                 echo "Error: Unsupported Linux architecture ($(uname -m)). Exiting."
                 exit 1
@@ -29,6 +35,14 @@ case $(uname) in
         ;;
     "Darwin" )
         DARWIN_ARCH=$(uname -m)
+        case "$DARWIN_ARCH" in
+            arm64 )  EXPECTED_SHA256="fb6921db95d345dc7e5e487dd43b745e3a5b4d5c0c7ca4f707347148760317b4" ;;
+            x86_64 ) EXPECTED_SHA256="1ab00742d1ed0926e6f227df39d767f8efab46f5250505c29cb81f548222d794" ;;
+            * )
+                echo "Error: Unsupported macOS architecture ($DARWIN_ARCH). Exiting."
+                exit 1
+                ;;
+        esac
         TOOLCHAIN_DIR="arm-gnu-toolchain-13.3.rel1-darwin-${DARWIN_ARCH}-arm-none-eabi"
         DOWNLOAD_URL="https://developer.arm.com/-/media/Files/downloads/gnu/13.3.rel1/binrel/arm-gnu-toolchain-13.3.rel1-darwin-${DARWIN_ARCH}-arm-none-eabi.tar.xz"
         ;;
@@ -46,11 +60,20 @@ if [ ! -d "$TOOLCHAIN_DIR" ] || [ ! -f "$TOOLCHAIN_DIR/bin/arm-none-eabi-gcc" ];
     # 1b. Download to a file (-f fails on HTTP errors, so a curl failure is not masked
     # by tar), then extract. 'xJf': extract, xz, from file.
     ARCHIVE="${TOOLCHAIN_DIR}.tar.xz"
-    if ! curl -fL -# -o "$ARCHIVE" "$DOWNLOAD_URL" || ! tar -xJf "$ARCHIVE"; then
+    # The SHA-256 values come from the <archive>.sha256asc files Arm publishes next to
+    # each archive. The archive is verified before it is extracted.
+    if command -v sha256sum >/dev/null 2>&1; then
+        SHA256_CMD="sha256sum"
+    else
+        SHA256_CMD="shasum -a 256"
+    fi
+    if ! curl -fL -# -o "$ARCHIVE" "$DOWNLOAD_URL" \
+        || [ "$($SHA256_CMD "$ARCHIVE" | cut -d' ' -f1)" != "$EXPECTED_SHA256" ] \
+        || ! tar -xJf "$ARCHIVE"; then
         rm -f "$ARCHIVE"
         echo "========================================================================="
-        echo "ERROR: Failed to download or extract the ARM toolchain."
-        echo "Please check if 'curl' and 'tar' are installed and the URL is still valid."
+        echo "ERROR: Failed to download, verify (SHA-256), or extract the ARM toolchain."
+        echo "Please check if 'curl', 'tar' and 'xz' are installed and the URL is still valid."
         echo "========================================================================="
         exit 1
     fi
@@ -101,7 +124,7 @@ fi
 FIRMWARE_VERSION=$(grep '^[[:space:]]*#define[[:space:]]*FIRMWARE_VERSION' "$VERSION_FILE" | awk '{print $3}')
 
 # Basic validation: ensure extracted version is a non-empty decimal number
-if [ -z "$FIRMWARE_VERSION" ] || ! expr "$FIRMWARE_VERSION" : '^[0-9]\+$' >/dev/null; then
+if [ -z "$FIRMWARE_VERSION" ] || ! expr "$FIRMWARE_VERSION" : '[0-9][0-9]*$' >/dev/null; then
     echo "Error: Could not extract a valid numerical FIRMWARE_VERSION from '$VERSION_FILE'."
     exit 1
 fi
