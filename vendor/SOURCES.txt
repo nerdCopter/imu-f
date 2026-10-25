@@ -1,0 +1,17 @@
+Vendored third-party sources
+
+Only files the F3 build opens are kept. Licenses: vendor/CMSIS_5/LICENSE.txt
+and vendor/ST_LICENSE.txt.
+
+vendor/CMSIS_5/
+  Source:  https://github.com/ARM-software/CMSIS_5 (tag 5.9.0)
+  License: Apache-2.0
+  Files are byte-identical to that tag.
+
+vendor/STM32F30x_StdPeriph_Driver/ (library V1.2.3)
+vendor/CMSIS_std/Device/ST/STM32F30x/ (device headers V1.2.2)
+  Source:  STM32F30x DSP and standard peripherals library (STSW-STM32108)
+           https://www.st.com/en/embedded-software/stsw-stm32108.html
+  License: ST (see vendor/ST_LICENSE.txt)
+  Local changes: src/stm32f30x_rcc.c and src/stm32f30x_hrtim.c add
+  __attribute__((fallthrough)); for GCC 13.
