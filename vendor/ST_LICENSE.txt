@@ -1,18 +1,19 @@
 STMicroelectronics licenses for vendor/STM32F30x_StdPeriph_Driver and vendor/CMSIS_std
 
-Part 1: SLA0044 Rev5 (February 2018), "Ultimate Liberty Software License
-Agreement". The file headers name the "MCD-ST Liberty SW License Agreement V2".
-Evidence that this is the text behind that name:
-- ST publishes this exact text as SLA0044 Rev5 in its own repository
-  https://github.com/STMicroelectronics/STM32CubeF4 (file
-  Projects/STM324xG_EVAL/Applications/LICENSE.md).
-- Third-party notices pair the name with this text, for example the
-  Xilinx systemctl-labtool file license/LICENSE_3RD_PARTY_HW_SERVER, and
-  a copy of the "Licensed under MCD-ST Liberty SW License Agreement V2" file
-  header followed by this text in https://github.com/pvvx/STM32INA2xxPowerProfiler
-  (file LICENSE.ST).
-Not found: an ST statement that the 2015 library (V1.2.2/V1.2.3) shipped with
-this revision, or the earlier revision text.
+Part 1: SLA0044 Rev5 (February 2018), published by ST as "Ultimate Liberty
+Software License Agreement". The file headers name the "MCD-ST Liberty SW
+License Agreement V2". ST does not state that SLA0044 replaced that agreement.
+What is known:
+- ST publishes this exact text as SLA0044 Rev5 in https://github.com/STMicroelectronics/STM32CubeF4
+  (file Projects/STM324xG_EVAL/Applications/LICENSE.md).
+- Third-party notices pair the Liberty V2 name with this text: Xilinx
+  systemctl-labtool (license/LICENSE_3RD_PARTY_HW_SERVER) and
+  https://github.com/pvvx/STM32INA2xxPowerProfiler (LICENSE.ST).
+- ST's user manual UM1581 (Figure 2, page 24) shows the library zip containing
+  "MCD-ST Liberty SW License Agreement V2.pdf". An ST staff post of
+  1 November 2013 on community.st.com ("Software license Liberty V2") says the
+  agreement is attached; that attachment link now returns HTTP 404.
+Not found: the text of "MCD-ST Liberty SW License Agreement V2.pdf".
 
 Part 2: Software Package License Agreement SLA0048 Rev 6 (February 2026,
 document dm00218346), linked from
