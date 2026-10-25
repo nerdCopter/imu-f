@@ -22,7 +22,9 @@ vendor/CMSIS_std/Device/ST/STM32F30x/ (device headers V1.2.4)
   local changes.
 
 src/stm32/ (stm32f30x_conf.h, stm32f30x_it.c, stm32f30x_it.h, system_stm32f30x.c)
-  Source:  ST StdPeriph template project V1.1.2, changed for this project
+assembly/startup/startup_stm32f301x8.s
+  Source:  ST StdPeriph template project V1.1.2 and ST startup file V2.2.0, changed
+           for this project
   License: MCD-ST Liberty SW License Agreement V2 (Nov 16th, 2011), named in
            the file headers; text in src/stm32/ST_LICENSE.txt, copied from the
            agreement PDF in ST's STM32F30x_DSP_StdPeriph_Lib_V1.2.3 package.

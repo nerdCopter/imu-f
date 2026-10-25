@@ -1,8 +1,9 @@
-STMicroelectronics license for these files in src/stm32:
-stm32f30x_conf.h, stm32f30x_it.c, stm32f30x_it.h, system_stm32f30x.c
+STMicroelectronics license for these files:
+src/stm32/stm32f30x_conf.h, src/stm32/stm32f30x_it.c, src/stm32/stm32f30x_it.h,
+src/stm32/system_stm32f30x.c, assembly/startup/startup_stm32f301x8.s
 
-They derive from ST's STM32F30x StdPeriph template project (V1.1.2) with
-project changes, and their headers say "Licensed under MCD-ST Liberty SW
+The src/stm32 files derive from ST's STM32F30x StdPeriph template project
+(V1.1.2) with project changes. All five file headers say "Licensed under MCD-ST Liberty SW
 License Agreement V2". The text below is that agreement, "Software License
 Agreement (Liberty V2)", Nov 16th, 2011, copied from the file
 "MCD-ST Liberty SW License Agreement V2.pdf" at the top level of ST's
