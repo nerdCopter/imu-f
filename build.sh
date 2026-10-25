@@ -58,25 +58,34 @@ if [ ! -d "$TOOLCHAIN_DIR" ] || [ ! -f "$TOOLCHAIN_DIR/bin/arm-none-eabi-gcc" ];
     echo "Detected OS: $(uname). Starting download..."
 
     # 1b. Download to a file (-f fails on HTTP errors, so a curl failure is not masked
-    # by tar), then extract. 'xJf': extract, xz, from file.
-    ARCHIVE="${TOOLCHAIN_DIR}.tar.xz"
+    # by tar), verify the SHA-256, then extract. 'xJf': extract, xz, from file.
     # The SHA-256 values come from the <archive>.sha256asc files Arm publishes next to
-    # each archive. The archive is verified before it is extracted.
+    # each archive.
+    ARCHIVE="${TOOLCHAIN_DIR}.tar.xz"
     if command -v sha256sum >/dev/null 2>&1; then
         SHA256_CMD="sha256sum"
-    else
+    elif command -v shasum >/dev/null 2>&1; then
         SHA256_CMD="shasum -a 256"
-    fi
-    if ! curl -fL -# -o "$ARCHIVE" "$DOWNLOAD_URL" \
-        || [ "$($SHA256_CMD "$ARCHIVE" | cut -d' ' -f1)" != "$EXPECTED_SHA256" ] \
-        || ! tar -xJf "$ARCHIVE"; then
-        rm -f "$ARCHIVE"
-        echo "========================================================================="
-        echo "ERROR: Failed to download, verify (SHA-256), or extract the ARM toolchain."
-        echo "Please check if 'curl', 'tar' and 'xz' are installed and the URL is still valid."
-        echo "========================================================================="
+    else
+        echo "ERROR: Neither 'sha256sum' nor 'shasum' is installed; cannot verify the toolchain download."
         exit 1
     fi
+
+    toolchain_fail() {
+        rm -f "$ARCHIVE"
+        echo "========================================================================="
+        echo "ERROR: $1"
+        echo "========================================================================="
+        exit 1
+    }
+
+    curl -fL -# -o "$ARCHIVE" "$DOWNLOAD_URL" \
+        || toolchain_fail "Failed to download the ARM toolchain. Check 'curl', the network, and that the URL is still valid."
+    ACTUAL_SHA256=$($SHA256_CMD "$ARCHIVE" | cut -d' ' -f1)
+    [ "$ACTUAL_SHA256" = "$EXPECTED_SHA256" ] \
+        || toolchain_fail "SHA-256 mismatch for $ARCHIVE: expected $EXPECTED_SHA256, got $ACTUAL_SHA256."
+    tar -xJf "$ARCHIVE" \
+        || toolchain_fail "Failed to extract $ARCHIVE. Check that 'tar' and 'xz' are installed."
 
     rm -f "$ARCHIVE"
     echo "Download and extraction of $TOOLCHAIN_DIR completed successfully."
