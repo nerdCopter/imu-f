@@ -12,6 +12,7 @@ vendor/STM32F30x_StdPeriph_Driver/ (library V1.2.3)
 vendor/CMSIS_std/Device/ST/STM32F30x/ (device headers V1.2.2)
   Source:  STM32F30x DSP and standard peripherals library (STSW-STM32108)
            https://www.st.com/en/embedded-software/stsw-stm32108.html
-  License: ST (see vendor/ST_LICENSE.txt)
+  License: ST proprietary package license, SLA0048 (see vendor/ST_LICENSE.txt);
+           file headers name "MCD-ST Liberty SW License Agreement V2"
   Local changes: src/stm32f30x_rcc.c and src/stm32f30x_hrtim.c add
   __attribute__((fallthrough)); for GCC 13.
