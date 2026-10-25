@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f30x_adc.c
   * @author  MCD Application Team
-  * @version V1.2.3
-  * @date    10-July-2015
+  * @version V1.2.4
+  * @date    15-December-2021
   * @brief   This file provides firmware functions to manage the following 
   *          functionalities of the Analog to Digital Convertor (ADC) peripheral:
   *           + Initialization and Configuration
@@ -55,19 +55,12 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT 2015 STMicroelectronics</center></h2>
+  * Copyright (c) 2015 STMicroelectronics.
+  * All rights reserved.
   *
-  * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
-  * You may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at:
-  *
-  *        http://www.st.com/software_license_agreement_liberty_v2
-  *
-  * Unless required by applicable law or agreed to in writing, software 
-  * distributed under the License is distributed on an "AS IS" BASIS, 
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
   *
   ******************************************************************************
   */
@@ -329,7 +322,7 @@ void ADC_CommonInit(ADC_TypeDef* ADCx, ADC_CommonInitTypeDef* ADC_CommonInitStru
   tmpreg1 |= (uint32_t)(ADC_CommonInitStruct->ADC_Mode | 
                         ADC_CommonInitStruct->ADC_Clock | 
                         ADC_CommonInitStruct->ADC_DMAAccessMode | 
-                        (uint32_t)(ADC_CommonInitStruct->ADC_DMAMode << 12) |
+                        (uint32_t)(ADC_CommonInitStruct->ADC_DMAMode << 13) |
                         (uint32_t)((uint32_t)ADC_CommonInitStruct->ADC_TwoSamplingDelay << 8));
 
   if((ADCx == ADC1) || (ADCx == ADC2))
@@ -2247,11 +2240,11 @@ FlagStatus ADC_GetCommonFlagStatus(ADC_TypeDef* ADCx, uint32_t ADC_FLAG)
 
   if((ADCx == ADC1) || (ADCx == ADC2))
   {
-    tmpreg1 = ADC1_2->CSR;
+    tmpreg1 = ADCx->ISR;
   }
   else
   {
-    tmpreg1 = ADC3_4->CSR;
+    tmpreg1 = ADCx->ISR;
   }  
   /* Check the status of the specified ADC flag */
   if ((tmpreg1 & ADC_FLAG) != (uint32_t)RESET)
@@ -2398,4 +2391,3 @@ void ADC_ClearITPendingBit(ADC_TypeDef* ADCx, uint32_t ADC_IT)
   * @}
   */ 
 
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

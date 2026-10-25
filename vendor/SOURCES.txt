@@ -1,22 +1,22 @@
 Vendored third-party sources
 
-Only files the F3 build opens are kept. License texts: vendor/CMSIS_5/LICENSE.txt
-and vendor/ST_LICENSE.txt.
+Only files the F3 build opens are kept. License texts: vendor/CMSIS_5/LICENSE.txt,
+vendor/STM32F30x_StdPeriph_Driver/LICENSE.txt,
+vendor/CMSIS_std/Device/ST/STM32F30x/LICENSE.txt, vendor/Package_license.md.
 
 vendor/CMSIS_5/
   Source:  https://github.com/ARM-software/CMSIS_5 (tag 5.9.0)
   License: Apache-2.0
   Files are byte-identical to that tag.
 
-vendor/STM32F30x_StdPeriph_Driver/ (library V1.2.3, 2015)
-vendor/CMSIS_std/Device/ST/STM32F30x/ (device headers V1.2.2, 2015)
-  Source:  STM32F30x_DSP_StdPeriph_Lib_V1.2.3 (STSW-STM32108)
+vendor/STM32F30x_StdPeriph_Driver/ (driver V1.2.4, 15-December-2021)
+vendor/CMSIS_std/Device/ST/STM32F30x/ (device headers V1.2.4)
+  Source:  STM32F30x_DSP_StdPeriph_Lib V1.3.0 (STSW-STM32108, file
+           stsw-stm32108_v1-3-0.zip)
            https://www.st.com/en/embedded-software/stsw-stm32108.html
-  License: MCD-ST Liberty SW License Agreement V2 (Nov 16th, 2011), named in
-           every file header; full text in vendor/ST_LICENSE.txt, copied from
-           the agreement PDF at the top level of that package.
-  Files are identical to that package (line endings ignored) except:
-  src/stm32f30x_rcc.c and src/stm32f30x_hrtim.c add
-  __attribute__((fallthrough)); for GCC 13.
-  ST's later V1.2.4/V1.3.0 releases use a newer agreement (SLA0044/SLA0048);
-  it does not apply to these 2015 files.
+  License: terms in the LICENSE files ST ships with each directory, as the file
+           headers say. Driver: SLA0044 Rev5 (February 2018). Device headers:
+           BSD-3-Clause outside a package. Package terms: Package_license.md
+           (SLA0048 Rev4, March 2018), copied from the package.
+  Files are identical to that package (line endings converted to LF), with no
+  local changes.

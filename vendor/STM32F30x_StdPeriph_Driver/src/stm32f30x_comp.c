@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f30x_comp.c
   * @author  MCD Application Team
-  * @version V1.2.3
-  * @date    10-July-2015
+  * @version V1.2.4
+  * @date    15-December-2021
   * @brief   This file provides firmware functions to manage the following 
   *          functionalities of the 7 analog comparators (COMP1, COMP2...COMP7) peripheral: 
   *           + Comparators configuration
@@ -60,8 +60,8 @@
  +-------------------------------------------------------+     
  | COMP1 | COMP2 | COMP3 | COMP4 | COMP5 | COMP6 | COMP7 |
  |-------|-------|-------|-------|-------|-------|-------|
- |  PA0  |  PA2  |  PB1  |  PC8  |  PC7  |  PA10 |  PC2  |
- |  PF4  |  PA7  |  ---  |  PA8  |  PA9  |  PC6  |  ---  |
+ |  PA0  |  PA2  |  PC8  |  PB1  |  PC7  |  PA10 |  PC2  |
+ |  PF4  |  PA7  |  PA8  |  ---  |  PA9  |  PC6  |  ---  |
  |  PA6  |  PA12 |  ---  |  ---  |  ---  |  ---  |  ---  |
  |  PA11 |  PB9  |  ---  |  ---  |  ---  |  ---  |  ---  |
  |  PB8  |  ---  |  ---  |  ---  |  ---  |  ---  |  ---  |
@@ -146,22 +146,15 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT 2014 STMicroelectronics</center></h2>
+  * Copyright (c) 2014 STMicroelectronics.
+  * All rights reserved.
   *
-  * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
-  * You may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at:
-  *
-  *        http://www.st.com/software_license_agreement_liberty_v2
-  *
-  * Unless required by applicable law or agreed to in writing, software 
-  * distributed under the License is distributed on an "AS IS" BASIS, 
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
   *
   ******************************************************************************
-  */ 
+  */
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f30x_comp.h"
@@ -504,4 +497,3 @@ void COMP_LockConfig(uint32_t COMP_Selection)
   * @}
   */
 
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

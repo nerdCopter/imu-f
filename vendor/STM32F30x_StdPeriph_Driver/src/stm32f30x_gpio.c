@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f30x_gpio.c
   * @author  MCD Application Team
-  * @version V1.2.3
-  * @date    10-July-2015
+  * @version V1.2.4
+  * @date    15-December-2021
   * @brief   This file provides firmware functions to manage the following 
   *          functionalities of the GPIO peripheral:
   *           + Initialization and Configuration functions
@@ -56,19 +56,12 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT 2015 STMicroelectronics</center></h2>
+  * Copyright (c) 2015 STMicroelectronics.
+  * All rights reserved.
   *
-  * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
-  * You may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at:
-  *
-  *        http://www.st.com/software_license_agreement_liberty_v2
-  *
-  * Unless required by applicable law or agreed to in writing, software 
-  * distributed under the License is distributed on an "AS IS" BASIS, 
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
   *
   ******************************************************************************
   */
@@ -490,7 +483,7 @@ void GPIO_Write(GPIO_TypeDef* GPIOx, uint16_t PortVal)
   *     @arg GPIO_AF_2:  COMP1_OUT, TIM1, TIM2, TIM3, TIM4, TIM8, TIM15, TIM16.
   *     @arg GPIO_AF_3:  COMP7_OUT, TIM8, TIM15, Touch, HRTIM.
   *     @arg GPIO_AF_4:  I2C1, I2C2, TIM1, TIM8, TIM16, TIM17.
-  *     @arg GPIO_AF_5:  IR_OUT, I2S2, I2S3, SPI1, SPI2, TIM8, USART4, USART5
+  *     @arg GPIO_AF_5:  IR_OUT, I2S2, I2S3, SPI1, SPI2, TIM8, UART4, UART5
   *     @arg GPIO_AF_6:  IR_OUT, I2S2, I2S3, SPI2, SPI3, TIM1, TIM8
   *     @arg GPIO_AF_7:  AOP2_OUT, CAN, COMP3_OUT, COMP5_OUT, COMP6_OUT, USART1, 
   *                      USART2, USART3.
@@ -542,4 +535,3 @@ void GPIO_PinAFConfig(GPIO_TypeDef* GPIOx, uint16_t GPIO_PinSource, uint8_t GPIO
   * @}
   */
 
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

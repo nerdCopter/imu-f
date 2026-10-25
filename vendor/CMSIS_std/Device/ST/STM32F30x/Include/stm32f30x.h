@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f30x.h
   * @author  MCD Application Team
-  * @version V1.2.2
-  * @date    27-February-2015
+  * @version V1.2.4
+  * @date    15-December-2021
   * @brief   CMSIS Cortex-M4 Device Peripheral Access Layer Header File. 
   *          This file contains all the peripheral registers definitions, bits 
   *          definitions and memory mapping for STM32F30x devices.
@@ -25,19 +25,12 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT 2015 STMicroelectronics</center></h2>
+  * Copyright (c) 2015 STMicroelectronics.
+  * All rights reserved.
   *
-  * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
-  * You may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at:
-  *
-  *        http://www.st.com/software_license_agreement_liberty_v2
-  *
-  * Unless required by applicable law or agreed to in writing, software 
-  * distributed under the License is distributed on an "AS IS" BASIS, 
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
   *
   ******************************************************************************
   */
@@ -144,7 +137,7 @@
 
 
 /**
- * @brief STM32F30x Standard Peripherals Library version number V1.2.2
+ * @brief STM32F30x Standard Peripherals Library version number V1.2.4
    */
 #define __STM32F30X_STDPERIPH_VERSION_MAIN   (0x01) /*!< [31:24] main version */                                  
 #define __STM32F30X_STDPERIPH_VERSION_SUB1   (0x02) /*!< [23:16] sub1 version */
@@ -9083,4 +9076,3 @@ typedef struct
   * @}
   */
 
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
