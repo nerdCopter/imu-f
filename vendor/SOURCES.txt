@@ -1,7 +1,7 @@
 Vendored third-party sources
 
-Only files the F3 build opens are kept. Licenses: vendor/CMSIS_5/LICENSE.txt
-and vendor/ST_LICENSE.txt.
+Only files the F3 build opens are kept. License texts: vendor/CMSIS_5/LICENSE.txt,
+vendor/ST_LICENSE.txt, vendor/CMSIS_std/LICENSE.txt.
 
 vendor/CMSIS_5/
   Source:  https://github.com/ARM-software/CMSIS_5 (tag 5.9.0)
@@ -9,10 +9,21 @@ vendor/CMSIS_5/
   Files are byte-identical to that tag.
 
 vendor/STM32F30x_StdPeriph_Driver/ (library V1.2.3)
-vendor/CMSIS_std/Device/ST/STM32F30x/ (device headers V1.2.2)
   Source:  STM32F30x DSP and standard peripherals library (STSW-STM32108)
            https://www.st.com/en/embedded-software/stsw-stm32108.html
-  License: ST proprietary package license, SLA0048 (see vendor/ST_LICENSE.txt);
-           file headers name "MCD-ST Liberty SW License Agreement V2"
+  License: ST Proprietary (Software Package License Agreement SLA0048, see
+           vendor/ST_LICENSE.txt). File headers name "MCD-ST Liberty SW
+           License Agreement V2".
   Local changes: src/stm32f30x_rcc.c and src/stm32f30x_hrtim.c add
   __attribute__((fallthrough)); for GCC 13.
+
+vendor/CMSIS_std/Device/ST/STM32F30x/ (device headers V1.2.2)
+  Source:  same STSW-STM32108 package
+  License: ST's Additional License Terms list "STM32F30x CMSIS" as
+           BSD-3-Clause (text in vendor/CMSIS_std/LICENSE.txt). The two file
+           headers name "MCD-ST Liberty SW License Agreement V2".
+
+Not established by the ST documents: which of these terms ST applied to the
+2015 versions (V1.2.2 and V1.2.3) kept here. The ST documents are the
+Additional License Terms for the STM32F30x/31x library (2021) and SLA0048
+Rev 6 (February 2026).
